@@ -1,0 +1,129 @@
+@config "../../tailwind.config.mjs";
+@import "tailwindcss";
+
+/* ----------------------------
+   Brand base variables (raw)
+   ---------------------------- */
+:root {
+  --ink: 11 18 17;        /* #0b1211 */
+  --teal: 15 47 43;       /* #0f2f2b */
+  --linen: 246 243 237;   /* #f6f3ed */
+  --ivory: 244 242 237;   /* #f4f2ed */
+  --charcoal: 31 35 38;   /* #1f2326 */
+  --focus: 176 138 75;   /* brass */
+  --error: 180 83 60;    /* rust */
+  --brass: 176 138 75; /* brass */
+
+  /* ----------------------------
+     Semantic tokens (LIGHT)
+     ---------------------------- */
+  --bg: var(--linen);
+  --surface: 255 255 255;
+  --text: var(--ink);
+  --muted: 90 99 97;         /* calm muted, not washed out */
+  --border: 220 214 206;     /* warm border that fits linen */
+  --brand: var(--teal);
+  --brand-contrast: var(--linen); /* linen */
+  --prestige: var(--brass); /* brass */
+}
+
+/* ----------------------------
+   Semantic tokens (DARK)
+   ---------------------------- */
+:root.dark,
+html.dark,
+body.dark {
+  --bg: 9 14 14;
+  --surface: 15 20 20;
+  --text: 244 242 237;
+  --muted: 185 190 188;
+  --border: 45 55 54;
+  --focus: 176 138 75;
+  --error: 180 83 60;
+  --prestige: var(--brass);
+  --brand: var(--teal);
+
+  /* keep contrast light */
+  --brand-contrast: var(--linen);
+}
+/* ----------------------------
+   Base styles
+   ---------------------------- */
+html {
+  font-feature-settings: "kern", "liga";
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-raleway), system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: rgb(var(--bg));
+  color: rgb(var(--text));
+}
+
+/* Headings default to serif for the brand */
+h1, h2, h3, .font-serif {
+  font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+}
+
+
+
+@layer base {
+  a {
+    color: inherit;
+  }
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgb(var(--focus) / 0.45);
+  }
+}
+
+
+/* ----------------------------
+   Components / Utilities
+   ---------------------------- */
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-[1280px] px-5 sm:px-8;
+  }
+.btn {
+    @apply inline-flex items-center justify-center rounded-xl
+           px-5 py-2.5 text-sm font-medium transition-colors duration-200
+           focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40;
+  }
+
+  /* PRIMARY */
+  a.btn-primary,
+  button.btn-primary {
+    background-color: rgb(var(--brand));
+    color: rgb(var(--brand-contrast));
+    text-decoration: none;
+  }
+  a.btn-primary:hover,
+  button.btn-primary:hover {
+    background-color: rgb(var(--brand) / 0.9);
+  }
+
+  /* SECONDARY */
+  a.btn-secondary,
+  button.btn-secondary {
+    border: 1px solid rgb(var(--brand));
+    color: rgb(var(--brand));
+    background: transparent;
+    text-decoration: none;
+  }
+  a.btn-secondary:hover,
+  button.btn-secondary:hover {
+    background-color: rgb(var(--brand));
+    color: rgb(var(--brand-contrast));
+  }
+
+  /* TERTIARY (underline link) */
+  a.btn-tertiary {
+    color: rgb(var(--text) / 0.75);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  a.btn-tertiary:hover {
+    color: rgb(var(--text));
+  }
+}
