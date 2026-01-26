@@ -23,7 +23,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${lora.variable} ${raleway.variable}`}>
+    <html lang="en" className={`${lora.variable} ${raleway.variable}`}
+    suppressHydrationWarning
+    >
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -44,7 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen bg-bg text-text font-sans antialiased">
         <Header />
         {children}
-        <Footer />
+        <Footer phone="854 837 2944" />
       </body>
     </html>
   )

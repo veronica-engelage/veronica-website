@@ -130,7 +130,7 @@ export default function Header() {
 
               <div className="pt-3">
                 <a
-  href="tel:+18435551234"
+  href="tel:+18548372944"
   className="btn btn-primary w-full"
   onClick={() => setOpen(false)}
 >

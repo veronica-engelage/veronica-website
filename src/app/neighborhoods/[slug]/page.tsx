@@ -5,7 +5,7 @@ import { sanityClient } from "@/sanity/client";
 export const revalidate = 300;
 
 const query = groq`
-  *[_type == "subdivision" && slug.current == $slug][0]{
+  *[_type == "neighborhood" && slug.current == $slug][0]{
     _id,
     title,
     "slug": slug.current,
@@ -13,7 +13,7 @@ const query = groq`
   }
 `;
 
-export default async function SubdivisionPage({
+export default async function NeighborhoodPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
@@ -36,4 +36,3 @@ export default async function SubdivisionPage({
     </main>
   );
 }
-
