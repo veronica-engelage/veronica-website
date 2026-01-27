@@ -1,7 +1,9 @@
-import { notFound } from "next/navigation"
-import { sanityClient } from "@/sanity/client"
-import PortableText from "@/components/PortableText"
-import { SectionRenderer } from "@/components/sections/SectionRenderer"
+import { notFound } from "next/navigation";
+import { sanityClient } from "@/sanity/client";
+import PortableText from "@/components/PortableText";
+import { SectionRenderer } from "@/components/sections/SectionRenderer";
+import { getSiteSettings } from "@/lib/siteSettings";
+import { normalizeE164 } from "@/lib/phone";
 
 const query = `*[_type == "page" && slug.current == $slug][0]{
   title,
@@ -10,64 +12,105 @@ const query = `*[_type == "page" && slug.current == $slug][0]{
     _key,
     _type,
 
-  _type == "sectionHero" => {
-  eyebrow,
-  headline,
-  subheadline,
-  layout,
-
-  "cta": cta{
-    label,
-    link{
-      url,
-      "page": page->{
-        _type,
-        "slug": slug.current
-      }
-    }
-  },
-
-  "media": media->{
-    _type,
-    title,
-    alt,
-
-    // imageAsset
-    image{
-      asset->{
-        url,
-        metadata{dimensions}
-      }
-    },
-
-    // videoAsset
-    provider,
-    url,
-    file{asset->{url}},
-    thumbnail{
-      asset->{
-        url,
-        metadata{dimensions}
-      }
-    }
-  }
-},
-
-
-    _type == "sectionRichText" => { width, content },
-
-    _type == "sectionGallery" => {
-      title,
+    _type == "sectionHero" => {
+      eyebrow,
+      headline,
+      subheadline,
       layout,
-      "items": items[]->{
+
+      "cta": cta{
+        label,
+        link{
+          url,
+          "page": page->{
+            _type,
+            "slug": slug.current
+          }
+        }
+      },
+
+      "secondaryCta": secondaryCta{
+        label,
+        link{
+          url,
+          "page": page->{
+            _type,
+            "slug": slug.current
+          }
+        }
+      },
+
+      "media": media->{
         _type,
         title,
         alt,
-        image{asset->{url, metadata{dimensions}}},
+
+        // imageAsset
+        image{
+          asset->{
+            url,
+            metadata{dimensions}
+          }
+        },
+
+        // videoAsset
         provider,
         url,
-        thumbnail{asset->{url, metadata{dimensions}}},
-        file{asset->{url}}
+        file{asset->{url}},
+        thumbnail{
+          asset->{
+            url,
+            metadata{dimensions}
+          }
+        },
+
+        // convenience url
+        "url": coalesce(
+          image.asset->url,
+          thumbnail.asset->url,
+          file.asset->url,
+          url
+        )
+      }
+    },
+
+    _type == "sectionRichText" => { width, content },
+
+    // ✅ FIXED: Gallery items are inline ref objects, deref with @->
+    _type == "sectionGallery" => {
+      title,
+      layout,
+      "items": items[]{
+        _key,
+        _type,
+
+        _type == "imageRef" => @->{
+          _id,
+          _type,
+          title,
+          alt,
+          image{asset->{url, metadata{dimensions}}},
+          credits{
+            author,
+            copyrightNotice,
+            license,
+            creditRequired,
+            usageNotes
+          },
+          "url": image.asset->url
+        },
+
+        _type == "videoRef" => @->{
+          _id,
+          _type,
+          title,
+          alt,
+          provider,
+          url,
+          thumbnail{asset->{url, metadata{dimensions}}},
+          file{asset->{url}},
+          "url": coalesce(file.asset->url, url, thumbnail.asset->url)
+        }
       }
     },
 
@@ -79,21 +122,20 @@ const query = `*[_type == "page" && slug.current == $slug][0]{
       }
     },
 
-   // CTA SECTION
-_type == "sectionCta" => {
-  headline,
-  text,
-  "cta": cta{
-    label,
-    link{
-      url,
-      "page": page->{
-        _type,
-        "slug": slug.current
+    _type == "sectionCta" => {
+      headline,
+      text,
+      "cta": cta{
+        label,
+        link{
+          url,
+          "page": page->{
+            _type,
+            "slug": slug.current
+          }
+        }
       }
-    }
-  }
-},
+    },
 
     _type == "sectionListings" => {
       title,
@@ -161,41 +203,45 @@ _type == "sectionCta" => {
       }
     }
   }
-}`
+}`;
 
-type ParamsLike = { slug?: string } | Promise<{ slug?: string }>
+type PageData =
+  | {
+      title?: string;
+      content?: any;
+      sections?: any[];
+    }
+  | null;
 
-type PageData = {
-  title?: string
-  content?: any
-  sections?: any[]
-} | null
+type GenericPageProps = {
+  // Next.js 15 typing: params may be async, so treat it as a Promise
+  params: Promise<{ slug: string }>;
+};
 
-export default async function GenericPage(props: { params: ParamsLike }) {
-  const resolvedParams =
-    typeof (props.params as any)?.then === "function"
-      ? await (props.params as Promise<{ slug?: string }>)
-      : (props.params as { slug?: string })
+export default async function GenericPage({ params }: GenericPageProps) {
+  const { slug } = await params;
 
-  const slug = resolvedParams?.slug
-  if (!slug) return notFound()
-  if (slug === "home") return notFound()
+  if (!slug) return notFound();
+  if (slug === "home") return notFound();
 
-  const page = await sanityClient.fetch<PageData>(query, { slug })
-  if (!page) return notFound()
+  const page = await sanityClient.fetch<PageData>(query, { slug });
+  if (!page) return notFound();
 
-  const hasSections = Array.isArray(page.sections) && page.sections.length > 0
+  // Fetch site settings phone for TextCtaButton fallback in hero
+  const settings = await getSiteSettings().catch(() => null);
+  const phone = normalizeE164(settings?.phone) || null;
 
-  // If you have migrated fully to sections, you can delete this fallback later.
+  const hasSections = Array.isArray(page.sections) && page.sections.length > 0;
+
   if (hasSections) {
     return (
       <main>
-        <SectionRenderer sections={page.sections!} />
+        <SectionRenderer sections={page.sections!} phone={phone} />
       </main>
-    )
+    );
   }
 
-  // Legacy fallback: title + content
+  // Legacy fallback
   return (
     <main>
       <section className="container-page pt-28 pb-24">
@@ -210,5 +256,5 @@ export default async function GenericPage(props: { params: ParamsLike }) {
         </div>
       </section>
     </main>
-  )
+  );
 }

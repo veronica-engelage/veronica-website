@@ -36,7 +36,7 @@ export default function PortableText({ value }: { value: any }) {
           marks: {
             link: ({ children, value }) => (
               <a
-                className="btn-tertiary"
+                className="underline underline-offset-4"
                 href={value?.href}
                 rel={value?.href?.startsWith("http") ? "noreferrer noopener" : undefined}
                 target={value?.href?.startsWith("http") ? "_blank" : undefined}

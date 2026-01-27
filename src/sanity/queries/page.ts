@@ -90,49 +90,7 @@ export const pageBySlugQuery = /* groq */ `
             url
           }
         }
-      },
-      filters
-    },
-
-    // SOCIAL FEED
-    _type == "sectionSocialFeed" => {
-      title,
-      platform,
-      mode,
-      limit,
-      "posts": posts[]->{
-        _id,
-        platform,
-        permalink,
-        caption,
-        postedAt,
-        mediaType,
-        "mediaAssets": mediaAssets[]->{
-          _type,
-          title,
-          alt,
-          image{asset->{url, metadata{dimensions}}},
-          thumbnail{asset->{url, metadata{dimensions}}},
-          provider,
-          url
-        }
-      }
-    },
-
-    // LEAD FORM
-    _type == "sectionLeadForm" => {
-      title,
-      intro,
-      successMessage,
-      "form": form->{
-        _id,
-        title,
-        "slug": slug.current,
-        kind,
-        consentText,
-        submitCta
       }
     }
   }
-}
-`
+`;

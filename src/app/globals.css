@@ -5,14 +5,24 @@
    Brand base variables (raw)
    ---------------------------- */
 :root {
-  --ink: 11 18 17;        /* #0b1211 */
-  --teal: 15 47 43;       /* #0f2f2b */
-  --linen: 246 243 237;   /* #f6f3ed */
-  --ivory: 244 242 237;   /* #f4f2ed */
-  --charcoal: 31 35 38;   /* #1f2326 */
-  --focus: 176 138 75;   /* brass */
-  --error: 180 83 60;    /* rust */
+  --ink: 11 18 17; /* #0b1211 */
+  --teal: 15 47 43; /* #0f2f2b */
+  --linen: 246 243 237; /* #f6f3ed */
+  --ivory: 244 242 237; /* #f4f2ed */
+  --charcoal: 31 35 38; /* #1f2326 */
+
+  --focus: 176 138 75; /* brass */
+  --error: 180 83 60; /* rust */
   --brass: 176 138 75; /* brass */
+
+  /* radius scale */
+  --r-sm: 12px;
+  --r-md: 14px;
+  --r-lg: 16px;
+
+  /* elevation */
+  --shadow-1: 0 1px 0 rgb(0 0 0 / 0.06), 0 10px 30px rgb(0 0 0 / 0.08);
+  --shadow-2: 0 1px 0 rgb(0 0 0 / 0.10), 0 18px 45px rgb(0 0 0 / 0.16);
 
   /* ----------------------------
      Semantic tokens (LIGHT)
@@ -20,11 +30,56 @@
   --bg: var(--linen);
   --surface: 255 255 255;
   --text: var(--ink);
-  --muted: 90 99 97;         /* calm muted, not washed out */
-  --border: 220 214 206;     /* warm border that fits linen */
+  --muted: 90 99 97;
+  --border: 220 214 206;
+
   --brand: var(--teal);
-  --brand-contrast: var(--linen); /* linen */
-  --prestige: var(--brass); /* brass */
+  --brand-contrast: var(--linen);
+  --prestige: var(--brass);
+
+  /* subtle “stroke” that isn’t yelling */
+  --stroke: rgb(var(--border) / 0.55);
+
+  /* ----------------------------
+     Typography system
+     Body reading: Lora (per your brand rules)
+     Signals/labels/UI: Raleway
+     ---------------------------- */
+  --root-font: 16px;
+
+  /* line heights */
+  --lh-tight: 1.1;
+  --lh-snug: 1.25;
+  --lh-normal: 1.6;
+
+  /* Raleway tracking tuned */
+  --track-tight: 0.06em;   /* tiny labels */
+  --track-label: 0.10em;   /* date/location lines */
+  --track-signal: 0.14em;  /* OPEN HOUSE (normal) */
+  --track-display: 0.22em; /* SOLD / OPEN HOUSE (big) */
+
+  /* text sizes */
+  --text-xs: 0.8125rem;  /* 13px */
+  --text-sm: 0.875rem;   /* 14px */
+  --text-base: 1rem;     /* 16px */
+  --text-lg: 1.0625rem;  /* 17px */
+
+  /* headings (clamp for mobile scaling) */
+  --h6: 1rem;
+  --h5: 1.125rem;
+  --h4: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
+  --h3: clamp(1.5rem, 1.25rem + 1.1vw, 1.875rem);
+  --h2: clamp(1.875rem, 1.5rem + 1.7vw, 2.25rem);
+  --h1: clamp(2.25rem, 1.6rem + 2.7vw, 3.25rem);
+
+  /* big signal sizes (Raleway ALL CAPS) */
+  --signal-md: clamp(1.5rem, 1.2rem + 1.6vw, 2.25rem);
+  --signal-lg: clamp(2rem, 1.4rem + 3vw, 3.25rem);
+
+  /* spacing rhythm */
+  --flow: 1rem;
+  --flow-tight: 0.5rem;
+  --flow-loose: 1.25rem;
 }
 
 /* ----------------------------
@@ -38,92 +93,382 @@ body.dark {
   --text: 244 242 237;
   --muted: 185 190 188;
   --border: 45 55 54;
-  --focus: 176 138 75;
-  --error: 180 83 60;
-  --prestige: var(--brass);
-  --brand: var(--teal);
 
-  /* keep contrast light */
-  --brand-contrast: var(--linen);
+  --stroke: rgb(var(--border) / 0.45);
+
+  --shadow-1: 0 1px 0 rgb(255 255 255 / 0.04), 0 18px 55px rgb(0 0 0 / 0.55);
+  --shadow-2: 0 1px 0 rgb(255 255 255 / 0.05), 0 28px 75px rgb(0 0 0 / 0.65);
 }
+
 /* ----------------------------
-   Base styles
+   Base styles (use Tailwind layers correctly)
    ---------------------------- */
-html {
-  font-feature-settings: "kern", "liga";
-  text-rendering: optimizeLegibility;
-}
-
-body {
-  font-family: var(--font-raleway), system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  background: rgb(var(--bg));
-  color: rgb(var(--text));
-}
-
-/* Headings default to serif for the brand */
-h1, h2, h3, .font-serif {
-  font-family: var(--font-lora), Georgia, "Times New Roman", serif;
-}
-
-
-
 @layer base {
-  a {
-    color: inherit;
+  html {
+    font-size: var(--root-font);
+    font-feature-settings: "kern", "liga";
+    text-rendering: optimizeLegibility;
   }
+
+  body {
+    /* brand rule: reading text is Lora */
+    font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+    background: rgb(var(--bg));
+    color: rgb(var(--text));
+    font-size: var(--text-base);
+    line-height: var(--lh-normal);
+  }
+
+  /* Headings: Lora */
+  h1, h2, h3, h4, h5, h6, .font-serif {
+    font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+    color: rgb(var(--text));
+    letter-spacing: -0.01em;
+  }
+
+  h1 { font-size: var(--h1); line-height: var(--lh-tight); }
+  h2 { font-size: var(--h2); line-height: var(--lh-tight); }
+  h3 { font-size: var(--h3); line-height: var(--lh-snug); }
+  h4 { font-size: var(--h4); line-height: var(--lh-snug); }
+  h5 { font-size: var(--h5); line-height: var(--lh-snug); }
+  h6 { font-size: var(--h6); line-height: var(--lh-snug); }
+
+  p { color: rgb(var(--muted)); }
+
+  a { color: inherit; }
+
   :focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px rgb(var(--focus) / 0.45);
   }
+
+  /* Default spacing in normal content flows */
+  main :where(h1,h2,h3,h4,h5,h6) {
+    margin-top: 1.75em;
+    margin-bottom: 0.6em;
+  }
+  main :where(h1) { margin-top: 0; }
+  main :where(h2) { margin-top: 2em; }
+  main :where(h3) { margin-top: 1.75em; }
+  main :where(h4,h5,h6) { margin-top: 1.5em; }
+
+  main :where(p) {
+    margin-top: 0;
+    margin-bottom: var(--flow);
+  }
+
+  main :where(ul,ol) {
+    margin: 0 0 var(--flow) 0;
+    padding-left: 1.25rem;
+    color: rgb(var(--muted));
+  }
+
+  main :where(li) { margin: 0.25rem 0; }
+
+  main :where(blockquote) {
+    margin: 1.25rem 0;
+    padding-left: 1rem;
+    border-left: 2px solid var(--stroke);
+    color: rgb(var(--text));
+  }
+
+  main :where(hr) {
+    border: 0;
+    border-top: 1px solid var(--stroke);
+    margin: 2rem 0;
+  }
 }
 
-
 /* ----------------------------
-   Components / Utilities
+   Components
    ---------------------------- */
 @layer components {
   .container-page {
     @apply mx-auto w-full max-w-[1280px] px-5 sm:px-8;
   }
-.btn {
-    @apply inline-flex items-center justify-center rounded-xl
-           px-5 py-2.5 text-sm font-medium transition-colors duration-200
-           focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40;
+
+  .surface {
+    background: rgb(var(--surface));
+    color: rgb(var(--text));
   }
 
-  /* PRIMARY */
-  a.btn-primary,
-  button.btn-primary {
+  .card {
+    border: 1px solid var(--stroke);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-1);
+    background: rgb(var(--surface));
+  }
+
+  .card-hover {
+    transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-2);
+  }
+
+  .media-frame {
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    background: rgb(0 0 0 / 0.04);
+  }
+
+  .divider { border-top: 1px solid var(--stroke); }
+
+  /* Eyebrow / labels (Raleway ALL CAPS) */
+  .eyebrow,
+  .label {
+    font-family: var(--font-raleway), system-ui, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: var(--track-label);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    color: rgb(var(--muted));
+  }
+
+  .eyebrow { margin-bottom: var(--flow-tight); }
+
+  /* Buttons (Raleway UI, cohesive luxury interactions) */
+  .btn {
+    font-family: var(--font-raleway), system-ui, sans-serif;
+    text-transform: none;
+    letter-spacing: 0.01em;
+    font-size: 0.9375rem;
+    font-weight: 500;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 46px;
+    padding: 0.75rem 1.5rem;
+
+    border-radius: 14px;
+    line-height: 1;
+
+    /* tactile baseline */
+    box-shadow:
+      0 1px 0 rgb(0 0 0 / 0.06),
+      0 10px 24px rgb(0 0 0 / 0.10);
+
+    transition:
+      transform 120ms ease,
+      box-shadow 160ms ease,
+      background-color 160ms ease,
+      border-color 160ms ease,
+      color 160ms ease,
+      filter 160ms ease;
+    position: relative;
+    overflow: hidden; /* enables sheen overlay */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn:active {
+    transform: translateY(0px) scale(0.99);
+    box-shadow:
+      0 1px 0 rgb(0 0 0 / 0.06),
+      0 6px 16px rgb(0 0 0 / 0.10);
+  }
+
+  .btn span { transform: translateY(0.5px); }
+
+  /* Primary: lacquered teal + brass sheen on hover */
+  .btn-primary {
     background-color: rgb(var(--brand));
     color: rgb(var(--brand-contrast));
-    text-decoration: none;
-  }
-  a.btn-primary:hover,
-  button.btn-primary:hover {
-    background-color: rgb(var(--brand) / 0.9);
+    border: 1px solid rgb(var(--brand) / 0.40);
   }
 
-  /* SECONDARY */
-  a.btn-secondary,
-  button.btn-secondary {
-    border: 1px solid rgb(var(--brand));
+  /* subtle sheen overlay (hidden by default) */
+  .btn-primary::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      110deg,
+      transparent 0%,
+      rgb(var(--prestige) / 0.22) 45%,
+      transparent 70%
+    );
+    transform: translateX(-120%);
+    transition: transform 320ms ease;
+    pointer-events: none;
+  }
+
+  .btn-primary:hover {
+    /* slightly richer teal */
+    background-color: rgb(var(--brand) / 0.94);
+    border-color: rgb(var(--prestige) / 0.45);
+
+    /* better lift */
+    box-shadow:
+      0 1px 0 rgb(0 0 0 / 0.06),
+      0 16px 40px rgb(0 0 0 / 0.16);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:hover::before {
+    transform: translateX(120%);
+  }
+
+  /* Secondary: quiet outline that "fills" on hover, but stays elegant */
+  .btn-secondary {
+    border: 1px solid rgb(var(--brand) / 0.80);
     color: rgb(var(--brand));
     background: transparent;
     text-decoration: none;
-  }
-  a.btn-secondary:hover,
-  button.btn-secondary:hover {
-    background-color: rgb(var(--brand));
-    color: rgb(var(--brand-contrast));
+
+    box-shadow: 0 1px 0 rgb(0 0 0 / 0.03);
   }
 
-  /* TERTIARY (underline link) */
-  a.btn-tertiary {
-    color: rgb(var(--text) / 0.75);
-    text-decoration: underline;
-    text-underline-offset: 4px;
+  .btn-secondary:hover {
+    background-color: rgb(var(--brand) / 0.10);
+    border-color: rgb(var(--prestige) / 0.55);
+    color: rgb(var(--text));
+    box-shadow:
+      0 1px 0 rgb(0 0 0 / 0.04),
+      0 10px 26px rgb(0 0 0 / 0.10);
+    transform: translateY(-1px);
   }
-  a.btn-tertiary:hover {
+
+  /* Tertiary: refined underline, prestige hover */
+  .btn-tertiary {
+    font-family: var(--font-raleway), system-ui, sans-serif;
+    font-size: 0.9375rem;
+    line-height: 1.1;
+    padding: 0.75rem 0;
+    background: transparent;
+    border: 0;
+
+    color: rgb(var(--text) / 0.72);
+    text-decoration: underline;
+    text-underline-offset: 5px;
+    text-decoration-thickness: 1px;
+    transition: color 160ms ease, text-decoration-color 160ms ease;
+  }
+
+  .btn-tertiary:hover {
+    color: rgb(var(--prestige));
+    text-decoration-color: rgb(var(--prestige) / 0.7);
+  }
+
+  /* Ensure anchors/buttons behave consistently */
+  a.btn-primary,
+  button.btn-primary,
+  a.btn-secondary,
+  button.btn-secondary,
+  a.btn-tertiary,
+  button.btn-tertiary {
+    text-decoration: none;
+  }
+
+  /* Improve secondary + tertiary contrast in dark mode */
+  :root.dark .btn-secondary,
+  html.dark .btn-secondary,
+  body.dark .btn-secondary {
+    background-color: rgb(255 255 255 / 0.04);
+    border-color: rgb(var(--border) / 0.9);
     color: rgb(var(--text));
   }
+
+  :root.dark .btn-secondary:hover,
+  html.dark .btn-secondary:hover,
+  body.dark .btn-secondary:hover {
+    background-color: rgb(255 255 255 / 0.08);
+    border-color: rgb(var(--prestige) / 0.55);
+    box-shadow: 0 10px 30px rgb(0 0 0 / 0.45);
+  }
+
+  :root.dark .btn-tertiary,
+  html.dark .btn-tertiary,
+  body.dark .btn-tertiary {
+    color: rgb(var(--text) / 0.85);
+  }
+
+  :root.dark .btn-tertiary:hover,
+  html.dark .btn-tertiary:hover,
+  body.dark .btn-tertiary:hover {
+    color: rgb(var(--prestige));
+    text-decoration-color: rgb(var(--prestige) / 0.7);
+  }
+
+
+  /* Forms */
+  .field {
+    border: 1px solid var(--stroke);
+    background: rgb(var(--surface));
+    color: rgb(var(--text));
+    border-radius: var(--r-sm);
+    font-size: var(--text-base);
+    @apply w-full px-3 py-3 transition-shadow;
+  }
+  .field::placeholder { color: rgb(var(--muted)); }
+  .field:focus-visible { box-shadow: 0 0 0 3px rgb(var(--focus) / 0.35); }
+
+  /* Homepage hero subtitle readability helper */
+  .hero-subhead {
+    color: rgb(var(--text) / 0.82);
+    max-width: 42ch;
+    text-shadow: 0 1px 14px rgb(0 0 0 / 0.18);
+  }
+
+  /* Optional: if you want the subtitle on bright images to be bulletproof */
+  .hero-subhead-panel {
+    display: inline-block;
+    padding: 0.65rem 0.85rem;
+    border-radius: 14px;
+    border: 1px solid rgb(var(--border) / 0.40);
+    background: rgb(var(--bg) / 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+    /* Media at top of cards: round only the top corners */
+  .card > .media-frame:first-child {
+    border-top-left-radius: var(--r-lg);
+    border-top-right-radius: var(--r-lg);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  /* If an image wrapper inside that media-frame ever has its own rounding, kill it */
+  .card > .media-frame:first-child img,
+  .card > .media-frame:first-child picture,
+  .card > .media-frame:first-child video {
+    border-radius: 0;
+  }
+}
+
+/* ----------------------------
+   Utilities (loads last = wins)
+   ---------------------------- */
+@layer utilities {
+  /* Raleway “shouts” (OPEN HOUSE / SOLD) */
+  .hero-shout {
+    font-family: var(--font-raleway), system-ui, sans-serif !important;
+    text-transform: uppercase !important;
+    letter-spacing: var(--track-display) !important;
+    font-weight: 300 !important;
+    font-size: var(--signal-lg) !important;
+    line-height: 1.05 !important;
+  }
+
+  .hero-shout-md {
+    font-family: var(--font-raleway), system-ui, sans-serif !important;
+    text-transform: uppercase !important;
+    letter-spacing: var(--track-signal) !important;
+    font-weight: 400 !important;
+    font-size: var(--signal-md) !important;
+    line-height: 1.1 !important;
+  }
+
+  .signal,
+  .signal-display {
+    font-family: var(--font-raleway), system-ui, sans-serif;
+    text-transform: uppercase;
+  }
+  .signal { letter-spacing: var(--track-signal); font-weight: 500; font-size: var(--signal-md); }
+  .signal-display { letter-spacing: var(--track-display); font-weight: 300; font-size: var(--signal-lg); }
+
+  /* Captions */
+  .caption { font-size: var(--text-sm); color: rgb(var(--muted)); }
 }

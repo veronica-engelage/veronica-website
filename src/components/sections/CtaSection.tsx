@@ -1,27 +1,34 @@
-import Link from 'next/link'
-import {resolveCtaHref} from '@/lib/linkResolver'
+import Link from "next/link";
+import { resolveCtaHref } from "@/lib/linkResolver";
 
-export function CtaSection({headline, text, cta}: any) {
-  const resolved = resolveCtaHref(cta)
+export function CtaSection({ headline, text, cta }: any) {
+  const resolved = resolveCtaHref(cta);
 
   return (
-    <section className="container-page py-10">
-      <div className="rounded-3xl border p-8 max-w-4xl">
+    <section className="container-page py-12">
+      <div className="card p-10 max-w-4xl">
         {headline ? <h2 className="text-2xl font-semibold">{headline}</h2> : null}
-        {text ? <p className="mt-3 opacity-80 max-w-2xl">{text}</p> : null}
+        {text ? <p className="mt-4 opacity-80 max-w-2xl leading-relaxed">{text}</p> : null}
 
         {cta?.label && resolved ? (
-          resolved.external ? (
-            <a className="inline-block mt-6 rounded-2xl px-5 py-3 border" href={resolved.href} target="_blank" rel="noreferrer">
-              {cta.label}
-            </a>
-          ) : (
-            <Link className="inline-block mt-6 rounded-2xl px-5 py-3 border" href={resolved.href}>
-              {cta.label}
-            </Link>
-          )
+          <div className="mt-7">
+            {resolved.external ? (
+              <a
+                className="btn btn-secondary"
+                href={resolved.href}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {cta.label}
+              </a>
+            ) : (
+              <Link className="btn btn-secondary" href={resolved.href}>
+                {cta.label}
+              </Link>
+            )}
+          </div>
         ) : null}
       </div>
     </section>
-  )
+  );
 }
