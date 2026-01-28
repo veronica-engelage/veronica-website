@@ -17,21 +17,21 @@ type Props = {
 
 export function CtaSection({ headline, text, cta }: Props) {
   const resolved: Resolved = cta ? resolveCtaHref(cta) : null;
-  const href = resolved?.href;
-  const isExternal = Boolean(resolved?.external);
 
-  const hasCta = Boolean(cta?.label && href);
-  const hasAny = Boolean(headline || text || hasCta);
-  if (!hasAny) return null;
-
-  // If no headline/text passed, provide safe defaults (optional)
+  // safe defaults (optional)
   const h = headline || "A calm conversation, when you’re ready";
   const t = text || "No pressure. No obligation. Just clear guidance.";
 
   const buttonClass =
-    // not using your btn system, because it looks too “UI-kit” here
     "inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium " +
     "border border-white/15 bg-white/5 hover:bg-white/10 transition";
+
+  const hasAny = Boolean(headline || text || (cta?.label && resolved?.href));
+  if (!hasAny) return null;
+
+  const label = cta?.label;
+  const href = resolved?.href;
+  const isExternal = Boolean(resolved?.external);
 
   return (
     <section className="container-page py-14">
@@ -40,9 +40,7 @@ export function CtaSection({ headline, text, cta }: Props) {
           className={[
             "relative overflow-hidden rounded-3xl",
             "border border-white/10",
-            // soft panel instead of a harsh rectangle
             "bg-white/[0.03]",
-            // subtle depth
             "shadow-[0_18px_55px_rgba(0,0,0,0.35)]",
           ].join(" ")}
         >
@@ -56,7 +54,7 @@ export function CtaSection({ headline, text, cta }: Props) {
 
             <p className="mt-4 max-w-2xl leading-relaxed opacity-80">{t}</p>
 
-            {hasCta ? (
+            {label && href ? (
               <div className="mt-7">
                 {isExternal ? (
                   <a
@@ -65,11 +63,11 @@ export function CtaSection({ headline, text, cta }: Props) {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    {cta!.label}
+                    {label}
                   </a>
                 ) : (
                   <Link className={buttonClass} href={href}>
-                    {cta!.label}
+                    {label}
                   </Link>
                 )}
               </div>
@@ -80,4 +78,3 @@ export function CtaSection({ headline, text, cta }: Props) {
     </section>
   );
 }
-
