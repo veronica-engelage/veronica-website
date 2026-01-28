@@ -442,6 +442,14 @@ body.dark {
    Utilities (loads last = wins)
    ---------------------------- */
 @layer utilities {
+  
+  .scrollbar-none {
+    scrollbar-width: none; /* Firefox */
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none; /* Safari/Chrome */
+  }
+  
   /* Raleway “shouts” (OPEN HOUSE / SOLD) */
   .hero-shout {
     font-family: var(--font-raleway), system-ui, sans-serif !important;

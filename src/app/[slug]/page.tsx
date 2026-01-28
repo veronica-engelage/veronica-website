@@ -201,6 +201,44 @@ const query = `*[_type == "page" && slug.current == $slug][0]{
         consentText,
         submitCta
       }
+    },
+
+    _type == "sectionTestimonials" => {
+      title,
+      layout,
+
+      "featured": featured->{
+  _id,
+  name,
+  headline,
+  text,
+  transactionType,
+  location,
+  result,
+  date,
+  approvedForMarketing,
+  photo{
+    alt,
+    asset->{url, metadata{dimensions}}
+  }
+},
+
+"testimonials": testimonials[]->{
+  _id,
+  name,
+  headline,
+  text,
+  transactionType,
+  location,
+  result,
+  date,
+  approvedForMarketing,
+  photo{
+    alt,
+    asset->{url, metadata{dimensions}}
+  }
+}
+
     }
   }
 }`;

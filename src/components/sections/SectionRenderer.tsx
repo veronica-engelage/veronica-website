@@ -6,6 +6,8 @@ import { SocialFeedSection } from "@/components/sections/SocialFeedSection";
 import { LeadFormSection } from "@/components/sections/LeadFormSection";
 import { CtaSection } from "@/components/sections/CtaSection";
 import { SnippetSection } from "@/components/sections/SnippetSection";
+import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
+
 
 type SectionRendererProps = {
   sections: any[];
@@ -66,6 +68,11 @@ export function SectionRenderer({ sections, phone }: SectionRendererProps) {
           case "sectionSnippet":
             console.log("[SectionRenderer] → Rendering SnippetSection");
             return <SnippetSection key={section._key} {...section} />;
+
+
+            case "sectionTestimonials":
+  console.log("[SectionRenderer] → Rendering TestimonialsSection");
+  return <TestimonialsSection key={section._key} {...section} />;
 
           default:
             console.warn(

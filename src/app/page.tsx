@@ -14,6 +14,8 @@ const homeQuery = groq`
     "slug": slug.current,
 
     sections[]{
+      _key,
+      _type,
       ...,
 
       _type == "sectionHero" => {
@@ -114,25 +116,134 @@ const homeQuery = groq`
         }
       },
 
-      cta{
-        ...,
-        link{
-          ...,
-          page->{
-            _type,
-            "slug": slug.current
+      _type == "sectionTestimonials" => {
+        title,
+        layout,
+
+        "featured": featured->{
+  _id,
+  name,
+  headline,
+  text,
+  transactionType,
+  location,
+  result,
+  date,
+  approvedForMarketing,
+  photo{
+    alt,
+    asset->{url, metadata{dimensions}}
+  }
+},
+
+"testimonials": testimonials[]->{
+  _id,
+  name,
+  headline,
+  text,
+  transactionType,
+  location,
+  result,
+  date,
+  approvedForMarketing,
+  photo{
+    alt,
+    asset->{url, metadata{dimensions}}
+  }
+}
+      },
+
+      _type == "sectionRichText" => {
+        width,
+        content
+      },
+
+      _type == "sectionSnippet" => {
+        "snippet": snippet->{
+          title,
+          content,
+          tags
+        }
+      },
+
+      _type == "sectionCta" => {
+        headline,
+        text,
+        "cta": cta{
+          label,
+          link{
+            url,
+            "page": page->{
+              _type,
+              "slug": slug.current
+            }
           }
         }
       },
 
-      secondaryCta{
-        ...,
-        link{
-          ...,
-          page->{
+      _type == "sectionSocialFeed" => {
+        title,
+        platform,
+        mode,
+        limit,
+        "posts": posts[]->{
+          _id,
+          platform,
+          permalink,
+          caption,
+          postedAt,
+          mediaType,
+          "mediaAssets": mediaAssets[]->{
             _type,
-            "slug": slug.current
+            title,
+            alt,
+            image{asset->{url, metadata{dimensions}}},
+            thumbnail{asset->{url, metadata{dimensions}}},
+            provider,
+            url
           }
+        }
+      },
+
+      _type == "sectionListings" => {
+        title,
+        mode,
+        filters,
+        "collection": collection->{
+          title,
+          "slug": slug.current,
+          "items": items[]->{
+            _id,
+            title,
+            "slug": slug.current,
+            status,
+            propertyType,
+            price,
+            address,
+            "hero": heroMedia->{
+              _type,
+              title,
+              alt,
+              image{asset->{url, metadata{dimensions}}},
+              thumbnail{asset->{url, metadata{dimensions}}},
+              provider,
+              url
+            }
+          }
+        }
+      },
+
+      _type == "sectionLeadForm" => {
+        title,
+        intro,
+        successMessage,
+        "form": form->{
+          _id,
+          title,
+          "slug": slug.current,
+          kind,
+          consentText,
+          submitCta
         }
       }
     }
@@ -148,7 +259,7 @@ export default async function HomePage() {
 
   return (
     <main>
-      <SectionRenderer sections={home.sections} phone={phone} />
+      <SectionRenderer sections={home.sections || []} phone={phone} />
     </main>
   );
 }
