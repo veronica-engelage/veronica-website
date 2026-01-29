@@ -75,7 +75,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           gtag('js', new Date());
           gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', {
             anonymize_ip: true,
-            send_page_view: false
+            send_page_view: true
           });
         `}
       </Script>
