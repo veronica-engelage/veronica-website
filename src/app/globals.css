@@ -99,10 +99,22 @@ body.dark {
    Base styles
    ---------------------------- */
 @layer base {
+  /* Global box sizing (prevents “mystery overflow” from padding/borders) */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
   html {
     font-size: var(--root-font);
     font-feature-settings: "kern", "liga";
     text-rendering: optimizeLegibility;
+
+    /* Prevent right-overhang on mobile */
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   body {
@@ -112,8 +124,52 @@ body.dark {
     font-size: var(--text-base);
     line-height: var(--lh-normal);
 
-    /* prevent horizontal jiggle */
+    /* Prevent horizontal jiggle */
+    width: 100%;
+    max-width: 100%;
     overflow-x: hidden;
+  }
+
+  /* Prefer clip when supported (less “rubber band” weirdness than hidden) */
+  @supports (overflow: clip) {
+    html,
+    body {
+      overflow-x: clip;
+    }
+  }
+
+  /* Media/embeds are common overflow offenders */
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  iframe,
+  embed,
+  object {
+    max-width: 100%;
+  }
+
+  /* Long strings (URLs, emails, MLS IDs) */
+  p,
+  a,
+  li,
+  blockquote {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  /* Prevent code blocks from forcing horizontal scroll site-wide */
+  pre,
+  code {
+    max-width: 100%;
+  }
+
+  pre {
+    overflow-x: auto;
   }
 
   h1, h2, h3, h4, h5, h6, .font-serif {
@@ -221,15 +277,13 @@ body.dark {
     box-shadow: var(--shadow-2);
   }
 
-  /* MEDIA SHOULD BE SQUARE.
-     This is the whole point of your current complaint. */
+  /* MEDIA SHOULD BE SQUARE. */
   .media-frame {
     border-radius: 0 !important;
     overflow: hidden;
     background: rgb(0 0 0 / 0.03);
   }
 
-  /* And if any nested image wrapper tries to round: kill it. */
   .media-frame img,
   .media-frame picture,
   .media-frame video {
