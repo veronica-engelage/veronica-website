@@ -146,17 +146,17 @@ export function HeroSection(props: HeroProps) {
     return (
       <section>
         {/* MOBILE */}
-        <section className="lg:hidden bg-bg">
-          <div className="-mx-6 sm:-mx-10">
-            <div className="relative h-[44vh] sm:h-[48vh] overflow-hidden">
-              <Image
-                src={bgSrc}
-                alt=""
-                fill
-                priority
-                className="object-cover"
-                style={{ objectPosition: "center 12%" }}
-              />
+        <section className="lg:hidden bg-bg overflow-x-hidden">
+          <div className="-mx-5 sm:-mx-8">
+    <div className="relative h-[44vh] sm:h-[48vh] overflow-hidden">
+      <Image
+        src={bgSrc}
+        alt=""
+        fill
+        priority
+        className="object-cover"
+        style={{ objectPosition: "center 12%" }}
+      />
 
               {/* Softer overlay (light) */}
               <div className="absolute inset-0 bg-gradient-to-r from-bg/70 via-bg/35 to-transparent" />
