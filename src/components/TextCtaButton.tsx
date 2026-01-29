@@ -10,6 +10,18 @@ type Props = {
   message?: string;
 };
 
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+  }
+}
+
+function track(eventName: string, params: Record<string, any>) {
+  if (typeof window !== "undefined" && typeof window.gtag === "function") {
+    window.gtag("event", eventName, params);
+  }
+}
+
 function isMobileUA() {
   if (typeof navigator === "undefined") return false;
   return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -48,14 +60,24 @@ export default function TextCtaButton({
   const sms = phoneE164 ? smsHref(phoneE164, message) : null;
   const tel = phoneE164 ? telHref(phoneE164) : null;
 
+  const baseParams = {
+    placement: "header_text_cta",
+    label,
+  };
+
   const onPrimaryClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // If phone missing, we won't be here (we render Link). But keep safe.
     if (!phoneE164 || !sms) return;
 
     // Mobile: go straight to sms:
-    if (isMobileUA()) return;
+    if (isMobileUA()) {
+      track("cta_text_open_sms", { ...baseParams, method: "sms", destination: "messages_app" });
+      return;
+    }
 
     // Desktop: show fallback modal
     e.preventDefault();
+    track("cta_text_open_modal", { ...baseParams });
     setOpen(true);
   };
 
@@ -64,6 +86,7 @@ export default function TextCtaButton({
     try {
       await navigator.clipboard.writeText(phoneE164);
       setCopied(true);
+      track("cta_text_modal_copy_number", { ...baseParams, phone: phoneE164 });
       window.setTimeout(() => setCopied(false), 1500);
     } catch {
       // clipboard may fail silently; do nothing
@@ -83,7 +106,11 @@ export default function TextCtaButton({
   // If phone missing, degrade to /contact so you don't have dead buttons
   if (!phoneE164) {
     return (
-      <Link className={className} href="/contact">
+      <Link
+        className={className}
+        href="/contact"
+        onClick={() => track("cta_text_fallback_contact", { ...baseParams, reason: "no_phone" })}
+      >
         <span>Contact</span>
       </Link>
     );
@@ -145,7 +172,17 @@ export default function TextCtaButton({
             </div>
 
             <div className="mt-4 grid gap-3">
-              <a className="btn btn-primary w-full" href={sms || "#"}>
+              <a
+                className="btn btn-primary w-full"
+                href={sms || "#"}
+                onClick={() =>
+                  track("cta_text_modal_open_sms", {
+                    ...baseParams,
+                    method: "sms",
+                    destination: "messages_app",
+                  })
+                }
+              >
                 <span>Open Messages</span>
               </a>
 
@@ -159,17 +196,30 @@ export default function TextCtaButton({
               </button>
 
               {tel ? (
-  <a className="btn btn-secondary w-full" href={`tel:${tel}`}>
-    <span>Call</span>
-  </a>
-) : (
-  <button className="btn btn-secondary w-full" disabled>
-    <span>Call</span>
-  </button>
-)}
+                <a
+                  className="btn btn-secondary w-full"
+                  href={tel}
+                  onClick={() =>
+                    track("cta_text_modal_call", {
+                      ...baseParams,
+                      method: "tel",
+                      destination: "dialer",
+                    })
+                  }
+                >
+                  <span>Call</span>
+                </a>
+              ) : (
+                <button className="btn btn-secondary w-full" disabled>
+                  <span>Call</span>
+                </button>
+              )}
 
-
-              <a className="btn btn-tertiary w-full text-center" href="/contact">
+              <a
+                className="btn btn-tertiary w-full text-center"
+                href="/contact"
+                onClick={() => track("cta_text_modal_contact_form", { ...baseParams })}
+              >
                 Use contact form
               </a>
             </div>
@@ -179,5 +229,3 @@ export default function TextCtaButton({
     </>
   );
 }
-
-

@@ -1,42 +1,47 @@
-import BrandLockup from "@/components/BrandLockup"
-import Image from "next/image"
-import { getSiteSettings } from "@/lib/siteSettings"
+import BrandLockup from "@/components/BrandLockup";
+import Image from "next/image";
+import { getSiteSettings } from "@/lib/siteSettings";
+import FooterContactTrack from "@/components/footer/FooterContactTrack";
 
 function formatPhoneDisplay(phone: string) {
-  const digits = phone.replace(/\D/g, "")
+  const digits = phone.replace(/\D/g, "");
   if (digits.length === 10) {
-    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
   }
-  return phone
+  return phone;
 }
 
 function formatPhoneTel(phone: string) {
-  const digits = phone.replace(/\D/g, "")
-  return digits.length === 10 ? `+1${digits}` : `+${digits}`
+  const digits = phone.replace(/\D/g, "");
+  // Returns E.164 without "tel:" prefix
+  return digits.length === 10 ? `+1${digits}` : `+${digits}`;
 }
 
-type FooterLink = { label?: string; href?: string }
+type FooterLink = { label?: string; href?: string };
 
 export default async function Footer({ phone }: { phone: string }) {
-  const settings = await getSiteSettings().catch(() => null)
+  const settings = await getSiteSettings().catch(() => null);
 
   // --- copy defaults from your current design ---
   const fallbackTagline =
-    "Charleston & Mount Pleasant real estate, guided with discretion, local intelligence, and calm execution."
+    "Charleston & Mount Pleasant real estate, guided with discretion, local intelligence, and calm execution.";
 
-  const fallbackLocation = "Charleston & Mount Pleasant, SC"
+  const fallbackLocation = "Charleston & Mount Pleasant, SC";
 
   // --- pull from siteSettings (but do not break if missing) ---
-  const phoneRaw = (settings?.phone || phone || "").toString()
-  const phoneDisplay = phoneRaw ? formatPhoneDisplay(phoneRaw) : ""
-  const phoneTel = phoneRaw ? formatPhoneTel(phoneRaw) : ""
+  const phoneRaw = (settings?.phone || phone || "").toString();
+  const phoneDisplay = phoneRaw ? formatPhoneDisplay(phoneRaw) : "";
+  const phoneTel = phoneRaw ? formatPhoneTel(phoneRaw) : "";
 
-  const tagline = (settings?.footerTagline || settings?.brandTagline || fallbackTagline) as string
-  const locationLine = (settings?.locationLine || fallbackLocation) as string
+  const tagline = (settings?.footerTagline ||
+    settings?.brandTagline ||
+    fallbackTagline) as string;
+
+  const locationLine = (settings?.locationLine || fallbackLocation) as string;
 
   const footerNav: FooterLink[] = Array.isArray(settings?.footerNav)
     ? settings.footerNav.filter(Boolean)
-    : []
+    : [];
 
   // If you haven’t wired footerNav yet, keep your current links as fallback
   const legalLinks: FooterLink[] = footerNav.length
@@ -47,17 +52,17 @@ export default async function Footer({ phone }: { phone: string }) {
         { label: "Fair Housing", href: "/fair-housing" },
         { label: "Accessibility", href: "/accessibility" },
         { label: "Do Not Sell or Share My Personal Information", href: "/do-not-sell" },
-      ]
+      ];
 
-  const ctaLabel = (settings?.footerCtaLabel || "Get in touch") as string
-  const ctaHref = (settings?.footerCtaHref || "/contact") as string
+  const ctaLabel = (settings?.footerCtaLabel || "Get in touch") as string;
+  const ctaHref = (settings?.footerCtaHref || "/contact") as string;
 
-  const agentName = (settings?.agentName || "Veronica Engelage") as string
-  const brokerageName = (settings?.brokerageName || "Carolina One Real Estate") as string
+  const agentName = (settings?.agentName || "Veronica Engelage") as string;
+  const brokerageName = (settings?.brokerageName || "Carolina One Real Estate") as string;
 
   const disclaimer =
     (settings?.footerDisclaimer as string) ||
-    `Veronica Engelage is a real estate licensee affiliated with Carolina One Real Estate. Information deemed reliable but not guaranteed. All properties are subject to prior sale, change, or withdrawal. Neither listing broker(s) nor Carolina One Real Estate shall be responsible for any typographical errors, misinformation, or omissions.`
+    `Veronica Engelage is a real estate licensee affiliated with Carolina One Real Estate. Information deemed reliable but not guaranteed. All properties are subject to prior sale, change, or withdrawal. Neither listing broker(s) nor Carolina One Real Estate shall be responsible for any typographical errors, misinformation, or omissions.`;
 
   return (
     <footer className="border-t border-border bg-bg">
@@ -70,21 +75,15 @@ export default async function Footer({ phone }: { phone: string }) {
             <p className="mt-4 max-w-md text-sm text-muted">{tagline}</p>
           </div>
 
-          {/* Contact */}
+          {/* Contact (client tracked) */}
           <div className="md:justify-self-end">
-            <div className="flex flex-col gap-2 text-sm">
-              <a href={ctaHref} className="text-text/80 hover:text-text transition">
-                {ctaLabel}
-              </a>
-
-              {phoneRaw ? (
-                <a href={`tel:${phoneTel}`} className="text-text/80 hover:text-text transition">
-                  {phoneDisplay}
-                </a>
-              ) : null}
-
-              <span className="text-muted">{locationLine}</span>
-            </div>
+            <FooterContactTrack
+              ctaLabel={ctaLabel}
+              ctaHref={ctaHref}
+              phoneDisplay={phoneDisplay || undefined}
+              phoneTel={phoneTel || undefined}
+              locationLine={locationLine}
+            />
           </div>
         </div>
 
@@ -126,5 +125,5 @@ export default async function Footer({ phone }: { phone: string }) {
         </div>
       </div>
     </footer>
-  )
+  );
 }

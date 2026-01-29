@@ -1,7 +1,7 @@
 import Image from "next/image";
-import Link from "next/link";
 import { resolveCtaHref } from "@/lib/linkResolver";
-import TextCtaButton from "@/components/TextCtaButton";
+import TrackedLink from "@/components/analytics/TrackedLink";
+import TrackedExternalLink from "@/components/analytics/TrackedExternalLink";
 
 type HeroVariant = "standard" | "signatureCutout";
 type HeroLayout = "overlay" | "split";
@@ -25,69 +25,64 @@ type HeroProps = {
   signatureCutoutFallbackSrc?: string;
 };
 
-function CtaLink({ cta, className }: { cta: any; className: string }) {
-  const resolved = resolveCtaHref(cta);
-  if (!cta?.label || !resolved) return null;
-
-  if (resolved.external) {
-    return (
-      <a className={className} href={resolved.href} target="_blank" rel="noreferrer">
-        {cta.label}
-      </a>
-    );
-  }
-
-  return (
-    <Link className={className} href={resolved.href}>
-      {cta.label}
-    </Link>
-  );
+function isSmsHref(href: string) {
+  return typeof href === "string" && href.startsWith("sms:");
 }
 
 /**
- * Primary CTA behavior:
- * - If primary resolves to sms:, on DESKTOP we show TextCtaButton (fallback modal).
- * - On MOBILE we avoid sms CTA in-hero (sticky bar already covers it) and send to /contact.
- * - Otherwise, render normal CtaLink.
+ * CTA behavior decision:
+ * - For hero: keep it simple and non-redundant.
+ * - If CTA resolves to sms:, override to /contact (header + sticky already handle sms/call).
+ * - Track clicks via client wrappers.
  */
-function PrimaryCta({
+function CtaLink({
   cta,
   className,
-  phone,
-  message,
+  placement = "hero",
 }: {
-  cta?: any;
+  cta: any;
   className: string;
-  phone?: string | null;
-  message?: string;
+  placement?: string;
 }) {
   const resolved = resolveCtaHref(cta);
-  if (!cta?.label || !resolved) return null;
+  if (!cta?.label || !resolved?.href) return null;
 
-  const isSms =
-    !!resolved?.href && typeof resolved.href === "string" && resolved.href.startsWith("sms:");
+  const rawHref: string = resolved.href;
+  const href = isSmsHref(rawHref) ? "/contact" : rawHref;
 
-  if (!isSms) {
-    return <CtaLink cta={cta} className={className} />;
+  const params = {
+    placement,
+    label: cta.label,
+    destination: href,
+    resolved_destination: rawHref,
+    external: Boolean(resolved.external),
+    overridden: href !== rawHref,
+  };
+
+  if (resolved.external) {
+    // External links still tracked (client component)
+    return (
+      <TrackedExternalLink
+        className={className}
+        href={rawHref}
+        eventName="hero_cta_click"
+        params={params}
+      >
+        {cta.label}
+      </TrackedExternalLink>
+    );
   }
 
+  // Internal links tracked (client component)
   return (
-    <>
-      {/* Desktop: text with fallback modal */}
-      <div className="hidden md:block">
-        <TextCtaButton
-          phone={phone}
-          label={cta?.label || "Text me"}
-          className={className}
-          message={message}
-        />
-      </div>
-
-      {/* Mobile: keep it simple; sticky bar does sms/call */}
-      <Link className={`${className} md:hidden`} href="/contact">
-  <span>Get in touch</span>
-</Link>
-    </>
+    <TrackedLink
+      className={className}
+      href={href}
+      eventName="hero_cta_click"
+      params={params}
+    >
+      {cta.label}
+    </TrackedLink>
   );
 }
 
@@ -97,16 +92,12 @@ function CtaRow({
   className,
   primaryClass,
   secondaryClass,
-  phone,
-  message,
 }: {
   primary?: any;
   secondary?: any;
   className: string;
   primaryClass: string;
   secondaryClass: string;
-  phone?: string | null;
-  message?: string;
 }) {
   const hasPrimary = !!(primary?.label && resolveCtaHref(primary));
   const hasSecondary = !!(secondary?.label && resolveCtaHref(secondary));
@@ -114,8 +105,8 @@ function CtaRow({
 
   return (
     <div className={className}>
-      <PrimaryCta cta={primary} className={primaryClass} phone={phone} message={message} />
-      <CtaLink cta={secondary} className={secondaryClass} />
+      <CtaLink cta={primary} className={primaryClass} placement="hero_primary" />
+      <CtaLink cta={secondary} className={secondaryClass} placement="hero_secondary" />
     </div>
   );
 }
@@ -144,15 +135,6 @@ export function HeroSection(props: HeroProps) {
   const alt = media?.alt || headline || "";
 
   const cutoutUrl: string | undefined = cutoutImage?.asset?.url || cutoutImage?.url;
-
-  // If your CTA message lives somewhere else, you can wire it here.
-  const defaultSmsMessage =
-    "Hi Veronica, I found your website and would like to talk about buying or selling in Charleston / Mount Pleasant.";
-
-  // phone might be available via your settings wiring later; for now we let TextCtaButton normalize.
-  // If you have it in props somewhere, pass it down. Otherwise it will still work if your cta href is sms: already.
-  const phoneForTextCta: string | null =
-    null;
 
   // =========================
   // SIGNATURE (homepage cutout)
@@ -185,9 +167,7 @@ export function HeroSection(props: HeroProps) {
               <div className="absolute inset-x-0 bottom-0 hidden dark:block h-[40%] bg-gradient-to-t from-bg/88 to-transparent" />
 
               <div className="absolute inset-y-0 left-0 w-[320px] pointer-events-none">
-                {/* Full hero height, cutout always sits on bottom */}
                 <div className="relative h-full w-full flex items-end">
-                  {/* Never taller than hero, but can be as tall as it wants up to 320px */}
                   <div className="relative w-full h-[min(320px,100%)]">
                     <Image
                       src={cutoutSrc}
@@ -210,7 +190,9 @@ export function HeroSection(props: HeroProps) {
               </h1>
             ) : null}
 
-            {subheadline ? <p className="mt-6 text-lg text-text/80 leading-relaxed">{subheadline}</p> : null}
+            {subheadline ? (
+              <p className="mt-6 text-lg text-text/80 leading-relaxed">{subheadline}</p>
+            ) : null}
 
             <CtaRow
               primary={cta}
@@ -218,8 +200,6 @@ export function HeroSection(props: HeroProps) {
               className="mt-10 flex flex-wrap items-center gap-6"
               primaryClass="btn btn-primary"
               secondaryClass="btn-tertiary"
-              phone={phoneForTextCta}
-              message={defaultSmsMessage}
             />
           </div>
         </section>
@@ -245,9 +225,7 @@ export function HeroSection(props: HeroProps) {
 
           <div className="relative z-10 container-page flex h-full items-center">
             <div className="absolute inset-y-0 left-0 w-[420px] xl:w-[460px] pointer-events-none">
-              {/* Full hero height, cutout always sits on bottom */}
               <div className="relative h-full w-full flex items-end">
-                {/* Never taller than hero, but keep your “ideal” size when it fits */}
                 <div className="relative w-full h-[min(560px,100%)]">
                   <Image
                     src={cutoutSrc}
@@ -264,7 +242,9 @@ export function HeroSection(props: HeroProps) {
             <div className="ml-auto max-w-xl pr-10" style={{ textShadow: "0 1px 2px rgba(0,0,0,0.08)" }}>
               {eyebrow ? <div className="eyebrow text-text/80">{eyebrow}</div> : null}
               {headline ? <h1 className="font-serif text-6xl tracking-tight text-text">{headline}</h1> : null}
-              {subheadline ? <p className="mt-6 text-lg text-text/80 leading-relaxed">{subheadline}</p> : null}
+              {subheadline ? (
+                <p className="mt-6 text-lg text-text/80 leading-relaxed">{subheadline}</p>
+              ) : null}
 
               <CtaRow
                 primary={cta}
@@ -272,8 +252,6 @@ export function HeroSection(props: HeroProps) {
                 className="mt-10 flex flex-wrap items-center gap-6"
                 primaryClass="btn btn-primary"
                 secondaryClass="btn-tertiary"
-                phone={phoneForTextCta}
-                message={defaultSmsMessage}
               />
             </div>
           </div>
@@ -311,7 +289,9 @@ export function HeroSection(props: HeroProps) {
           <div className="max-w-2xl">
             {eyebrow ? <div className="eyebrow text-text/80">{eyebrow}</div> : null}
             {headline ? <h1 className="hero-shout text-text">{headline}</h1> : null}
-            {subheadline ? <p className="mt-5 text-lg text-text/80 leading-relaxed max-w-prose">{subheadline}</p> : null}
+            {subheadline ? (
+              <p className="mt-5 text-lg text-text/80 leading-relaxed max-w-prose">{subheadline}</p>
+            ) : null}
 
             <CtaRow
               primary={cta}
@@ -319,8 +299,6 @@ export function HeroSection(props: HeroProps) {
               className="mt-8 flex flex-wrap items-center gap-6"
               primaryClass="btn btn-primary"
               secondaryClass="text-sm text-text/70 underline underline-offset-4 hover:text-text transition"
-              phone={phoneForTextCta}
-              message={defaultSmsMessage}
             />
           </div>
         </div>
@@ -334,7 +312,9 @@ export function HeroSection(props: HeroProps) {
         <div>
           {eyebrow ? <div className="eyebrow">{eyebrow}</div> : null}
           {headline ? <h1 className="hero-shout-md text-text">{headline}</h1> : null}
-          {subheadline ? <p className="mt-5 text-lg text-text/80 leading-relaxed max-w-prose">{subheadline}</p> : null}
+          {subheadline ? (
+            <p className="mt-5 text-lg text-text/80 leading-relaxed max-w-prose">{subheadline}</p>
+          ) : null}
 
           <CtaRow
             primary={cta}
@@ -342,8 +322,6 @@ export function HeroSection(props: HeroProps) {
             className="mt-8 flex flex-wrap items-center gap-6"
             primaryClass="btn btn-primary"
             secondaryClass="text-sm text-text/70 underline underline-offset-4 hover:text-text transition"
-            phone={phoneForTextCta}
-            message={defaultSmsMessage}
           />
         </div>
 
@@ -362,4 +340,3 @@ export function HeroSection(props: HeroProps) {
 
   return heroLayout === "split" ? split : overlay;
 }
-
