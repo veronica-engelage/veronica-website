@@ -5,75 +5,109 @@ type Resolved = { href: string; external?: boolean } | null;
 
 type Cta = {
   label?: string;
-  // keep "any" because your resolver likely supports multiple shapes
-  link?: any;
+  link?: any; // resolver supports multiple shapes
 };
+
+type Variant = "card" | "band";
 
 type Props = {
   headline?: string;
   text?: string;
   cta?: Cta;
+  secondaryCta?: Cta;
+
+  /**
+   * Optional. If you don't have this in Sanity yet, just omit it
+   * and you'll still get the "expensive" card default.
+   */
+  variant?: Variant;
+
+  /**
+   * Optional. For rare cases where CTA needs to be narrower/wider.
+   */
+  width?: "narrow" | "normal";
 };
 
-export function CtaSection({ headline, text, cta }: Props) {
+function Action({
+  cta,
+  className,
+}: {
+  cta?: Cta;
+  className: string;
+}) {
   const resolved: Resolved = cta ? resolveCtaHref(cta) : null;
-
-  // safe defaults (optional)
-  const h = headline || "A calm conversation, when you’re ready";
-  const t = text || "No pressure. No obligation. Just clear guidance.";
-
-  const buttonClass =
-    "inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium " +
-    "border border-white/15 bg-white/5 hover:bg-white/10 transition";
-
-  const hasAny = Boolean(headline || text || (cta?.label && resolved?.href));
-  if (!hasAny) return null;
-
-  const label = cta?.label;
+  const label = cta?.label?.trim();
   const href = resolved?.href;
-  const isExternal = Boolean(resolved?.external);
+
+  if (!label || !href) return null;
+
+  if (resolved?.external) {
+    return (
+      <a className={className} href={href} target="_blank" rel="noreferrer">
+        {label}
+      </a>
+    );
+  }
 
   return (
-    <section className="container-page py-14">
-      <div className="mx-auto max-w-4xl">
-        <div
-          className={[
-            "relative overflow-hidden rounded-3xl",
-            "border border-white/10",
-            "bg-white/[0.03]",
-            "shadow-[0_18px_55px_rgba(0,0,0,0.35)]",
-          ].join(" ")}
-        >
-          {/* gentle highlight wash */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent" />
+    <Link className={className} href={href}>
+      {label}
+    </Link>
+  );
+}
 
-          <div className="relative px-8 py-12 sm:px-12">
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">
-              {h}
-            </h2>
+export function CtaSection({
+  headline,
+  text,
+  cta,
+  secondaryCta,
+  variant = "card",
+  width = "normal",
+}: Props) {
+  const hasAny = Boolean(headline || text || cta?.label || secondaryCta?.label);
+  if (!hasAny) return null;
 
-            <p className="mt-4 max-w-2xl leading-relaxed opacity-80">{t}</p>
+  const h = (headline || "A calm conversation, when you’re ready").trim();
+  const t = (text || "No pressure. No obligation. Just clear guidance.").trim();
 
-            {label && href ? (
-              <div className="mt-7">
-                {isExternal ? (
-                  <a
-                    className={buttonClass}
-                    href={href}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {label}
-                  </a>
-                ) : (
-                  <Link className={buttonClass} href={href}>
-                    {label}
-                  </Link>
-                )}
-              </div>
-            ) : null}
-          </div>
+  const innerWidth =
+    width === "narrow" ? "max-w-[72ch]" : "max-w-[92ch]";
+
+  // shared layout
+  const content = (
+    <div className={["mx-auto", innerWidth].join(" ")}>
+      <div className="space-y-3">
+        <h2 className="text-3xl sm:text-4xl tracking-tight">{h}</h2>
+        {t ? <p className="max-w-2xl leading-relaxed text-muted">{t}</p> : null}
+      </div>
+
+      <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <Action cta={cta} className="btn btn-primary" />
+        <Action cta={secondaryCta} className="btn btn-secondary" />
+      </div>
+    </div>
+  );
+
+  if (variant === "band") {
+    // band = calmer, less “boxed”, works well between sections
+    return (
+      <section className="py-14 sm:py-18">
+        <div className="container-page">
+          <div className="divider mb-10" />
+          {content}
+          <div className="divider mt-10" />
         </div>
+      </section>
+    );
+  }
+
+  // card = your “expensive” look
+  return (
+    <section className="container-page py-14 sm:py-18">
+      <div className="card p-8 sm:p-12">
+        {/* subtle wash, no glow circus */}
+        <div className="pointer-events-none absolute inset-0 opacity-0" />
+        {content}
       </div>
     </section>
   );

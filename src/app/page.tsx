@@ -13,7 +13,7 @@ const homeQuery = groq`
     title,
     "slug": slug.current,
 
-    sections[]{
+    sections[] {
       _key,
       _type,
       ...,
@@ -27,20 +27,14 @@ const homeQuery = groq`
           alt,
 
           image{
-            asset->{
-              url,
-              metadata{dimensions}
-            }
+            asset->{ url, metadata{dimensions} }
           },
 
           provider,
           url,
           file{asset->{url}},
           thumbnail{
-            asset->{
-              url,
-              metadata{dimensions}
-            }
+            asset->{ url, metadata{dimensions} }
           },
 
           "url": coalesce(
@@ -60,10 +54,7 @@ const homeQuery = groq`
           ...,
           link{
             ...,
-            page->{
-              _type,
-              "slug": slug.current
-            }
+            page->{ _type, "slug": slug.current }
           }
         },
 
@@ -71,10 +62,7 @@ const homeQuery = groq`
           ...,
           link{
             ...,
-            page->{
-              _type,
-              "slug": slug.current
-            }
+            page->{ _type, "slug": slug.current }
           }
         }
       },
@@ -121,49 +109,36 @@ const homeQuery = groq`
         layout,
 
         "featured": featured->{
-  _id,
-  name,
-  headline,
-  text,
-  transactionType,
-  location,
-  result,
-  date,
-  approvedForMarketing,
-  photo{
-    alt,
-    asset->{url, metadata{dimensions}}
-  }
-},
+          _id,
+          name,
+          headline,
+          text,
+          transactionType,
+          location,
+          result,
+          date,
+          approvedForMarketing,
+          photo{ alt, asset->{url, metadata{dimensions}} }
+        },
 
-"testimonials": testimonials[]->{
-  _id,
-  name,
-  headline,
-  text,
-  transactionType,
-  location,
-  result,
-  date,
-  approvedForMarketing,
-  photo{
-    alt,
-    asset->{url, metadata{dimensions}}
-  }
-}
+        "testimonials": testimonials[]->{
+          _id,
+          name,
+          headline,
+          text,
+          transactionType,
+          location,
+          result,
+          date,
+          approvedForMarketing,
+          photo{ alt, asset->{url, metadata{dimensions}} }
+        }
       },
 
-      _type == "sectionRichText" => {
-        width,
-        content
-      },
+      _type == "sectionRichText" => { width, content },
 
       _type == "sectionSnippet" => {
-        "snippet": snippet->{
-          title,
-          content,
-          tags
-        }
+        "snippet": snippet->{ title, content, tags }
       },
 
       _type == "sectionCta" => {
@@ -173,10 +148,7 @@ const homeQuery = groq`
           label,
           link{
             url,
-            "page": page->{
-              _type,
-              "slug": slug.current
-            }
+            "page": page->{ _type, "slug": slug.current }
           }
         }
       },
@@ -250,16 +222,28 @@ const homeQuery = groq`
   }
 `;
 
+type HomeData = {
+  sections?: Array<{ _key: string; _type: string; [k: string]: any }>;
+} | null;
+
+function curateHomeSections(sections: any[]) {
+  return sections; // literally do nothing, Sanity is the source of truth
+}
+
+
 export default async function HomePage() {
-  const home = await sanityClient.fetch(homeQuery);
+  const home = await sanityClient.fetch<HomeData>(homeQuery);
   if (!home) return notFound();
 
   const settings = await getSiteSettings().catch(() => null);
   const phone = normalizeE164(settings?.phone) || null;
 
+  const rawSections = Array.isArray(home.sections) ? home.sections : [];
+  const sections = curateHomeSections(rawSections);
+
   return (
     <main>
-      <SectionRenderer sections={home.sections || []} phone={phone} />
+      <SectionRenderer sections={sections} phone={phone} />
     </main>
   );
 }

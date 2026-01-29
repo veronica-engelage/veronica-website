@@ -19,6 +19,14 @@ export function ListingGalleryLightbox({
   gallery,
   listingTitle,
   hero,
+
+  // NEW (controlled mode)
+  open: openProp,
+  onOpenChange,
+  initialIndex = 0,
+
+  // NEW: hide the grid when you only want hero carousel + lightbox
+  hideGrid = false,
 }: {
   gallery: any[];
   listingTitle: string;
@@ -29,6 +37,11 @@ export function ListingGalleryLightbox({
     caption?: string | null;
     credit?: string | null;
   } | null;
+
+  open?: boolean;
+  onOpenChange?: (v: boolean) => void;
+  initialIndex?: number;
+  hideGrid?: boolean;
 }) {
   const slides = useMemo<Slide[]>(() => {
     const base = (Array.isArray(gallery) ? gallery : [])
@@ -48,8 +61,8 @@ export function ListingGalleryLightbox({
             ? author
               ? `Photo: ${author}`
               : notice
-              ? `© ${notice}`
-              : undefined
+                ? `© ${notice}`
+                : undefined
             : undefined;
 
         return {
@@ -72,7 +85,6 @@ export function ListingGalleryLightbox({
         credit: (hero?.credit || "").trim() || undefined,
       };
 
-      // Put hero first, then dedupe any gallery slide with same url
       const deduped = [heroSlide, ...base].filter((s, idx, arr) => {
         const u = normalizeUrl(s.url);
         return arr.findIndex((x) => normalizeUrl(x.url) === u) === idx;
@@ -81,18 +93,34 @@ export function ListingGalleryLightbox({
       return deduped;
     }
 
-    // No hero, just dedupe gallery by url
     return base.filter((s, idx, arr) => {
       const u = normalizeUrl(s.url);
       return arr.findIndex((x) => normalizeUrl(x.url) === u) === idx;
     });
   }, [gallery, hero, listingTitle]);
 
-  const [open, setOpen] = useState(false);
+  // Uncontrolled fallback
+  const [openLocal, setOpenLocal] = useState(false);
+  const isControlled = typeof openProp === "boolean";
+  const open = isControlled ? (openProp as boolean) : openLocal;
+
   const [active, setActive] = useState(0);
 
+  function setOpen(v: boolean) {
+    if (isControlled) onOpenChange?.(v);
+    else setOpenLocal(v);
+  }
+
+  // When opened (or when initialIndex changes in controlled mode), set active
+  useEffect(() => {
+    if (!slides.length) return;
+    const clamped = Math.max(0, Math.min(initialIndex ?? 0, slides.length - 1));
+    setActive(clamped);
+  }, [initialIndex, slides.length]);
+
   function openAt(i: number) {
-    setActive(i);
+    const clamped = Math.max(0, Math.min(i, slides.length - 1));
+    setActive(clamped);
     setOpen(true);
   }
   function close() {
@@ -132,25 +160,34 @@ export function ListingGalleryLightbox({
 
   return (
     <>
-      {/* grid */}
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {slides.map((s, idx) => (
-          <button
-            key={s.url + idx}
-            type="button"
-            className="card overflow-hidden text-left cursor-zoom-in"
-            onClick={() => openAt(idx)}
-            aria-label={`Open image ${idx + 1}`}
-          >
-            <div className="relative aspect-[4/3] bg-black/5">
-              <Image src={s.thumb || s.url} alt={s.alt} fill className="object-cover" />
-            </div>
-            {s.caption ? (
-              <div className="p-3 text-xs text-muted line-clamp-2">{s.caption}</div>
-            ) : null}
-          </button>
-        ))}
-      </div>
+      {/* OPTIONAL grid (hidden when using hero carousel + no gallery section) */}
+      {!hideGrid ? (
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {slides.map((s, idx) => (
+            <button
+              key={s.url + idx}
+              type="button"
+              className="overflow-hidden text-left cursor-zoom-in"
+              onClick={() => openAt(idx)}
+              aria-label={`Open image ${idx + 1}`}
+            >
+              <div className="relative aspect-[4/3] bg-black/5 overflow-hidden">
+                <Image
+                  src={s.thumb || s.url}
+                  alt={s.alt}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              {s.caption ? (
+                <div className="pt-2 text-xs text-muted line-clamp-2">
+                  {s.caption}
+                </div>
+              ) : null}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       {/* lightbox */}
       {open ? (
@@ -163,8 +200,12 @@ export function ListingGalleryLightbox({
         >
           <div className="absolute inset-0 bg-black/55" />
 
-          <div className="relative z-[61] w-full max-w-6xl group" onClick={(e) => e.stopPropagation()}>
-            <div className="card overflow-hidden">
+          <div
+            className="relative z-[61] w-full max-w-6xl group"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* No card look. Just clean media. */}
+            <div className="overflow-hidden bg-[rgb(var(--surface))]">
               <div className="relative bg-black/10">
                 <div className="relative mx-auto w-full max-w-[72rem] h-[80vh] sm:h-[82vh]">
                   <Image
@@ -180,7 +221,7 @@ export function ListingGalleryLightbox({
                 <button
                   type="button"
                   onClick={close}
-                  className="absolute right-4 top-4 rounded-full px-3 py-2 text-lg leading-none text-text/70 hover:text-text hover:bg-black/10 transition opacity-0 group-hover:opacity-100 focus:opacity-100"
+                  className="absolute right-4 top-4 px-3 py-2 text-lg leading-none text-text/70 hover:text-text hover:bg-black/10 transition opacity-0 group-hover:opacity-100 focus:opacity-100"
                   aria-label="Close"
                 >
                   ×
@@ -191,7 +232,7 @@ export function ListingGalleryLightbox({
                     <button
                       type="button"
                       onClick={prev}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full px-3 py-2 text-3xl leading-none text-text/55 hover:text-text hover:bg-black/10 transition opacity-0 group-hover:opacity-100 focus:opacity-100"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 px-3 py-2 text-3xl leading-none text-text/55 hover:text-text hover:bg-black/10 transition opacity-0 group-hover:opacity-100 focus:opacity-100"
                       aria-label="Previous"
                     >
                       ‹
@@ -200,7 +241,7 @@ export function ListingGalleryLightbox({
                     <button
                       type="button"
                       onClick={next}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full px-3 py-2 text-3xl leading-none text-text/55 hover:text-text hover:bg-black/10 transition opacity-0 group-hover:opacity-100 focus:opacity-100"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-2 text-3xl leading-none text-text/55 hover:text-text hover:bg-black/10 transition opacity-0 group-hover:opacity-100 focus:opacity-100"
                       aria-label="Next"
                     >
                       ›
@@ -210,7 +251,7 @@ export function ListingGalleryLightbox({
               </div>
 
               {(slides[active].caption || slides[active].credit || showThumbStrip) ? (
-                <div className="p-4 text-sm text-muted space-y-3">
+                <div className="px-4 py-4 text-sm text-muted space-y-3 border-t border-[rgb(var(--border)/0.25)]">
                   {(slides[active].caption || slides[active].credit) ? (
                     <div className="space-y-1">
                       {slides[active].caption ? <div>{slides[active].caption}</div> : null}
@@ -228,8 +269,10 @@ export function ListingGalleryLightbox({
                           type="button"
                           onClick={() => setActive(idx)}
                           className={[
-                            "relative h-14 w-20 flex-none overflow-hidden rounded-lg border",
-                            idx === active ? "border-text/60" : "border-transparent",
+                            "relative h-14 w-20 flex-none overflow-hidden border",
+                            idx === active
+                              ? "border-text/50"
+                              : "border-[rgb(var(--border)/0.25)]",
                           ].join(" ")}
                           aria-label={`Go to image ${idx + 1}`}
                         >
@@ -253,4 +296,3 @@ export function ListingGalleryLightbox({
     </>
   );
 }
-
