@@ -4,6 +4,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MobileStickyCta from "@/components/MobileStickyCta";
 import { Lora, Raleway } from "next/font/google";
+import Script from "next/script";
+import AnalyticsPageView from "@/components/analytics/AnalyticsPageView";
 
 
 const lora = Lora({
@@ -44,9 +46,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
+  <script
+    dangerouslySetInnerHTML={{
+      __html: `
 (function() {
   try {
     const stored = localStorage.getItem('theme');
@@ -55,10 +57,31 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     document.documentElement.classList.toggle('dark', useDark);
   } catch (e) {}
 })();
-            `,
-          }}
-        />
-      </head>
+      `,
+    }}
+  />
+
+  {/* Google Analytics (GA4) */}
+  {process.env.NEXT_PUBLIC_GA_ID ? (
+    <>
+      <Script
+        src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+        strategy="afterInteractive"
+      />
+      <Script id="ga-init" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', {
+            anonymize_ip: true,
+            send_page_view: false
+          });
+        `}
+      </Script>
+    </>
+  ) : null}
+</head>
 
       <body className="min-h-screen bg-bg text-text font-sans antialiased">
         <Header />
