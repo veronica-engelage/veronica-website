@@ -346,14 +346,14 @@ body.dark {
 
   .btn-primary:hover {
     background-color: rgb(var(--brand) / 0.92);
-    border-color: rgb(var(--prestige) / 0.45);
+    border-color: rgb(var(--text) / 0.45);
     transform: translateY(-1px);
     box-shadow: 0 1px 0 rgb(0 0 0 / 0.06), 0 16px 32px rgb(0 0 0 / 0.14);
   }
 
   .btn-secondary {
     border: 1px solid rgb(var(--brand) / 0.70);
-    color: rgb(var(--brand));
+    color: rgb(var(--text));
     background: transparent;
     box-shadow: 0 1px 0 rgb(0 0 0 / 0.03);
   }
@@ -373,7 +373,6 @@ body.dark {
     padding: 0.75rem 0;
     background: transparent;
     border: 0;
-
     color: rgb(var(--text) / 0.72);
     text-decoration: underline;
     text-underline-offset: 5px;

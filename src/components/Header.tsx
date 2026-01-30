@@ -17,14 +17,12 @@ export default async function Header() {
 
   const phoneE164 = normalizeE164(settings?.phone);
 
-  // Read new schema fields; fall back to legacy href if still present
   const ctaLabel: string | undefined = settings?.headerCta?.label;
   const ctaMode: CtaMode | undefined = settings?.headerCta?.mode;
   const ctaValue: string | undefined =
     settings?.headerCta?.value || settings?.headerCta?.href;
   const ctaMessage: string | undefined = settings?.headerCta?.message;
 
-  // Build CTA from settings (or sensible defaults)
   let cta:
     | { label: string; href: string; kind: "internal" | "external" | "tel" | "sms" }
     | undefined;
@@ -51,12 +49,10 @@ export default async function Header() {
       cta = { label: ctaLabel || "Call", href: tel, kind: "tel" };
     }
   } else {
-    // link
     const href = ctaValue || "/contact";
     cta = { label: ctaLabel || "Get in touch", href, kind: "internal" };
   }
 
-  // Default fallback if CTA somehow not built
   if (!cta) {
     cta =
       phoneE164
@@ -73,4 +69,3 @@ export default async function Header() {
 
   return <HeaderClient nav={nav} cta={cta as any} phone={phoneE164 || undefined} />;
 }
-

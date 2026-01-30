@@ -148,14 +148,15 @@ export function HeroSection(props: HeroProps) {
         {/* MOBILE */}
         <section className="lg:hidden bg-bg overflow-x-hidden">
           <div className="-mx-5 sm:-mx-8">
-    <div className="relative h-[44vh] sm:h-[48vh] overflow-hidden">
+    <div className="relative h-[clamp(420px,calc(100svh-140px),560px)] overflow-hidden">
+
       <Image
         src={bgSrc}
         alt=""
         fill
         priority
         className="object-cover"
-        style={{ objectPosition: "center 12%" }}
+        style={{ objectPosition: "center 8%" }}
       />
 
               {/* Softer overlay (light) */}
@@ -166,16 +167,19 @@ export function HeroSection(props: HeroProps) {
               <div className="absolute inset-0 hidden dark:block bg-gradient-to-r from-bg/78 via-bg/40 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 hidden dark:block h-[40%] bg-gradient-to-t from-bg/88 to-transparent" />
 
-              <div className="absolute inset-y-0 left-0 w-[320px] pointer-events-none">
-                <div className="relative h-full w-full flex items-end">
-                  <div className="relative w-full h-[min(320px,100%)]">
+              <div className="absolute inset-y-0 left-0 w-[400px] sm:w-[440px] pointer-events-none">
+
+  <div className="relative h-full w-full flex items-end">
+    <div className="relative w-full h-[min(420px,100%)] translate-y-2">
+
+
                     <Image
                       src={cutoutSrc}
                       alt={headline || "Hero"}
                       fill
                       priority
                       className="object-contain object-bottom"
-                      sizes="320px"
+                      sizes="(min-width: 640px) 440px, 400px"
                     />
                   </div>
                 </div>
@@ -185,7 +189,7 @@ export function HeroSection(props: HeroProps) {
 
           <div className="container-page py-10">
             {headline ? (
-              <h1 className="font-serif text-[2.25rem] sm:text-[2.5rem] tracking-tight text-text whitespace-nowrap">
+              <h1 className="font-serif text-[2.1rem] sm:text-[2.5rem] tracking-tight text-text leading-[1.05]">
                 {headline}
               </h1>
             ) : null}
@@ -205,14 +209,14 @@ export function HeroSection(props: HeroProps) {
         </section>
 
         {/* DESKTOP */}
-        <section className="hidden lg:block relative w-full overflow-hidden bg-bg h-[66vh]">
+        <section className="hidden lg:block relative w-full overflow-hidden bg-bg h-[clamp(520px,58vh,700px)]">
           <Image
             src={bgSrc}
             alt=""
             fill
             priority
             className="object-cover"
-            style={{ objectPosition: "center 12%" }}
+            style={{ objectPosition: "center 10%" }}
           />
 
           {/* Softer overlay (light) */}
@@ -224,16 +228,18 @@ export function HeroSection(props: HeroProps) {
           <div className="absolute inset-x-0 bottom-0 hidden dark:block h-[34%] bg-gradient-to-t from-bg/88 to-transparent" />
 
           <div className="relative z-10 container-page flex h-full items-center">
-            <div className="absolute inset-y-0 left-0 w-[420px] xl:w-[460px] pointer-events-none">
-              <div className="relative h-full w-full flex items-end">
-                <div className="relative w-full h-[min(560px,100%)]">
+            <div className="absolute inset-y-0 left-0 w-[480px] xl:w-[520px] pointer-events-none">
+  <div className="relative h-full w-full flex items-end">
+    <div className="relative w-full h-[min(640px,100%)] translate-y-3">
+
                   <Image
                     src={cutoutSrc}
                     alt={headline || "Hero"}
                     fill
                     priority
                     className="object-contain object-bottom"
-                    sizes="(min-width: 1280px) 460px, 420px"
+                    sizes="(min-width: 1280px) 520px, 480px"
+
                   />
                 </div>
               </div>

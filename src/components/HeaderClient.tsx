@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import BrandLockup from "@/components/BrandLockup";
+import Image from "next/image";
 import type { NavItem } from "@/lib/siteSettings";
 import TextCtaButton from "@/components/TextCtaButton";
-
 
 function MenuIcon({ open }: { open: boolean }) {
   return (
@@ -35,22 +34,18 @@ function MenuIcon({ open }: { open: boolean }) {
 function isHttpExternal(href?: string) {
   return !!href && /^https?:\/\//i.test(href);
 }
-
 function isScheme(href?: string, scheme?: string) {
   return !!href && !!scheme && href.toLowerCase().startsWith(`${scheme}:`);
 }
-
 function ensureTel(href: string) {
   return href.startsWith("tel:") ? href : `tel:${href}`;
 }
-
 function ensureSms(href: string) {
   return href.startsWith("sms:") ? href : `sms:${href}`;
 }
 
 function defaultSmsHref(phone?: string) {
   if (!phone) return null;
-  // Expect phone to be E.164 (e.g. +18548372944). Normalize upstream in Header.tsx if needed.
   const body = encodeURIComponent(
     "Hi Veronica, I found your website and would like to talk about buying or selling in Charleston / Mount Pleasant."
   );
@@ -70,7 +65,6 @@ function NavLink({
 }) {
   const href = item?.href || "#";
 
-  // Special schemes: never use Next Link, never force new tab
   if (isScheme(href, "tel") || item?.kind === "tel") {
     const tel = ensureTel(href);
     return (
@@ -89,7 +83,6 @@ function NavLink({
     );
   }
 
-  // Real external http(s)
   if (item?.kind === "external" || isHttpExternal(href)) {
     return (
       <a
@@ -104,11 +97,35 @@ function NavLink({
     );
   }
 
-  // Internal routes
   return (
     <Link href={href} className={className} onClick={onClick}>
       {item?.label}
     </Link>
+  );
+}
+
+function BrandSignet({ size = "lg" }: { size?: "lg" | "sm" }) {
+  const dims =
+    size === "lg"
+      ? "h-16 w-16 sm:h-[72px] sm:w-[72px]"
+      : "h-14 w-14"; // slightly bigger for scroll state (as you want)
+  return (
+    <div className={`relative ${dims} shrink-0`}>
+      <Image
+        src="/brand/logo-dark.svg"
+        alt="Veronica Engelage Signet"
+        fill
+        className="object-contain dark:hidden"
+        priority
+      />
+      <Image
+        src="/brand/logo-light.svg"
+        alt="Veronica Engelage Signet"
+        fill
+        className="hidden object-contain dark:block"
+        priority
+      />
+    </div>
   );
 }
 
@@ -125,9 +142,10 @@ export default function HeaderClient({
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => setScrolled(window.scrollY > 16);
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll as any);
   }, []);
 
   useEffect(() => {
@@ -135,14 +153,11 @@ export default function HeaderClient({
       if (window.innerWidth >= 768) setOpen(false);
     };
     window.addEventListener("resize", onResize, { passive: true });
-    return () => window.removeEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize as any);
   }, []);
 
-  const desktopLinkClass =
-    "text-text/70 hover:text-text transition tracking-[0.04em]";
   const mobileLinkClass = "text-sm text-text/80 hover:text-text transition";
 
-  // Mobile CTA: prefer provided CTA. If missing, default to TEXT (sms) if phone exists; else /contact.
   const mobileCta: NavItem =
     cta?.href
       ? cta
@@ -150,67 +165,120 @@ export default function HeaderClient({
       ? { label: "Text me", href: defaultSmsHref(phone) || "#", kind: "sms" }
       : { label: "Get in touch", href: "/contact", kind: "internal" };
 
+  const ctaNode = useMemo(() => {
+    if (!cta) return null;
+    if (cta?.href?.startsWith("sms:") || cta?.kind === "sms") {
+      return (
+        <TextCtaButton
+          phone={phone}
+          label={cta?.label || "Text me"}
+          className="btn btn-primary"
+        />
+      );
+    }
+    return <NavLink item={cta} className="btn btn-primary" />;
+  }, [cta, phone]);
+
+  // Up to 3 shortcut links (first paint only). Later you can pass a dedicated prop from Sanity.
+  const shortcuts = (nav || []).slice(0, 3);
+
   return (
     <header
       className={[
-        "sticky top-0 z-50 transition-colors duration-300",
+        "sticky top-0 z-50 transition-all duration-300",
         scrolled
-          ? "bg-bg/90 backdrop-blur border-b border-border"
-          : "bg-transparent border-b border-transparent",
+          ? "bg-bg/92 backdrop-blur border-b border-border"
+          : "bg-bg/40 backdrop-blur border-b border-transparent",
       ].join(" ")}
     >
-      <div className="container-page flex h-[76px] sm:h-20 items-center justify-between">
-        <Link href="/" className="flex items-center" aria-label="Home">
-          <BrandLockup />
-        </Link>
-
-        {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-10 text-sm">
-          {nav?.map((item, i) => (
-            <NavLink
-              key={`${item.label}-${i}`}
-              item={item}
-              className={desktopLinkClass}
-            />
-          ))}
-        </nav>
-
-{/* Desktop CTA */}
-<div className="hidden md:flex items-center">
-  {cta?.href?.startsWith("sms:") || cta?.kind === "sms" ? (
-    <TextCtaButton phone={phone} label={cta?.label || "Text me"} className="btn btn-primary" />
-  ) : (
-    <NavLink item={cta} className="btn btn-primary" />
-  )}
-</div>
-
-
-        {/* Mobile burger */}
-        <button
-          type="button"
-          aria-label="Open menu"
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-          className="
-            md:hidden
-            inline-flex items-center justify-center
-            h-10 w-10
-            rounded-md
-            text-text
-            hover:bg-bg/60
-            focus-visible:outline-none
-            focus-visible:ring-2
-            focus-visible:ring-prestige/50
-            transition
-          "
+      <div className="container-page">
+        <div
+          className={[
+            "relative transition-all duration-300",
+            scrolled ? "h-[76px]" : "h-[140px] sm:h-[156px]",
+          ].join(" ")}
         >
-          <MenuIcon open={open} />
-        </button>
+          {/* CENTER BRAND */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Link
+              href="/"
+              aria-label="Home"
+              className="flex flex-col items-center text-center"
+            >
+              <BrandSignet size={scrolled ? "sm" : "lg"} />
+
+              <div
+                className={[
+                  "transition-all duration-300 overflow-hidden",
+                  scrolled ? "max-h-0 opacity-0 mt-0" : "max-h-24 opacity-100 mt-[-8px]",
+                ].join(" ")}
+              >
+                <div className="font-serif text-[26px] sm:text-[28px] tracking-[-0.015em] text-brand dark:text-brandContrast leading-[1.05]">
+                  Veronica Engelage
+                </div>
+                <div className="mt-[1px] font-sans text-[9px] sm:text-[10.5px] uppercase tracking-[0.22em] text-brass">
+                  Carolina One Real Estate
+                </div>
+              </div>
+            </Link>
+          </div>
+
+          {/* RIGHT CONTROLS */}
+          {/* IMPORTANT: no transforms here, so TextCtaButton's fixed modal/backdrop stays viewport-centered */}
+          <div
+            className={[
+              "absolute right-0 flex flex-col items-end gap-8",
+              // On scroll: center vertically (no translate)
+              scrolled ? "top-1/2 mt-[-20px]" : "",
+              // First paint: align to pedestal (no translate)
+              scrolled ? "" : "top-[30%] mt-[-20px]",
+            ].join(" ")}
+          >
+            {/* Shortcuts: show only on first paint, desktop only */}
+            {!scrolled && shortcuts.length > 0 && (
+  <div className="hidden lg:flex items-center justify-end gap-2 font-sans">
+    {shortcuts.map((item, i) => (
+      <span key={`${item.label}-shortcut-${i}`} className="flex items-center gap-2">
+        <NavLink
+          item={item}
+          className="text-[11px] uppercase tracking-[0.18em] text-text/60 hover:text-text transition"
+        />
+        {i < shortcuts.length - 1 ? (
+          <span aria-hidden="true" className="text-text/35">
+            |
+          </span>
+        ) : null}
+      </span>
+    ))}
+  </div>
+)}
+
+
+            {/* CTA + burger row */}
+            <div className="flex items-center gap-4">
+              {/* Hide CTA under 1024 */}
+              <div className="hidden lg:block">{ctaNode}</div>
+
+              <button
+                type="button"
+                aria-label="Open menu"
+                aria-expanded={open}
+                onClick={() => setOpen((v) => !v)}
+                className={[
+                  "inline-flex items-center justify-center h-10 w-10 rounded-md text-text hover:bg-bg/60",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-prestige/50 transition",
+                ].join(" ")}
+              >
+                <MenuIcon open={open} />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Mobile menu panel */}
+      {/* Menu panel */}
       {open && (
-        <div className="md:hidden border-t border-border bg-bg/96 backdrop-blur">
+        <div className="border-t border-border bg-bg/96 backdrop-blur">
           <div className="container-page py-6">
             <div className="flex flex-col gap-4">
               {nav?.map((item, i) => (
@@ -222,7 +290,8 @@ export default function HeaderClient({
                 />
               ))}
 
-              <div className="pt-3">
+              {/* Only show CTA in menu on <lg since top CTA is hidden there */}
+              <div className="pt-3 lg:hidden">
                 <NavLink
                   item={mobileCta}
                   className="btn btn-primary w-full"
