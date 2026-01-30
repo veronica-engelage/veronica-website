@@ -15,7 +15,7 @@ function escapeHtml(s: string) {
 
 export async function POST(req: Request) {
   try {
-    const { name, email, message } = await req.json();
+    const { name, email, message, company} = await req.json();
 
     const cleanName = String(name || "").trim();
     const cleanEmail = String(email || "").trim();
@@ -24,6 +24,10 @@ export async function POST(req: Request) {
     if (!cleanEmail) {
       return Response.json({ error: "Email is required" }, { status: 400 });
     }
+// If honeypot is filled, pretend success but do nothing.
+if (typeof company === "string" && company.trim().length > 0) {
+  return Response.json({ ok: true });
+}
 
     // Basic anti-spam: reject absurdly long payloads
     if (cleanMsg.length > 5000 || cleanName.length > 200 || cleanEmail.length > 320) {

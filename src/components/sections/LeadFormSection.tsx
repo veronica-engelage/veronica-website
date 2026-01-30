@@ -67,6 +67,7 @@ export function LeadFormSection({
       name: String(data.get("name") || "").trim(),
       email: String(data.get("email") || "").trim(),
       message: String(data.get("message") || "").trim(),
+      company: String(data.get("company") || "").trim(), // honeypot
     };
 
     try {
@@ -126,6 +127,20 @@ if (!res.ok) {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="max-w-2xl">
+              {/* Honeypot (bots fill this, humans won't) */}
+<div className="hidden" aria-hidden="true">
+  <label>
+    Company
+    <input
+      type="text"
+      name="company"
+      tabIndex={-1}
+      autoComplete="off"
+      defaultValue=""
+    />
+  </label>
+</div>
+
               <div className="grid gap-3 sm:grid-cols-2">
                 <input
                   className="field"
