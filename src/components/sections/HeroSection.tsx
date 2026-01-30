@@ -7,6 +7,8 @@ type HeroVariant = "standard" | "signatureCutout";
 type HeroLayout = "overlay" | "split";
 type CtaLike = any;
 
+type HeadlineAs = "h1" | "h2" | "p";
+
 type HeroProps = {
   eyebrow?: string | null;
   headline?: string | null;
@@ -14,6 +16,9 @@ type HeroProps = {
 
   variant?: HeroVariant | null;
   layout?: HeroLayout | null;
+
+  /** NEW: controls semantic tag for the hero headline (default: h1) */
+  headlineAs?: HeadlineAs | null;
 
   cta?: CtaLike; // primary
   secondaryCta?: CtaLike; // secondary
@@ -60,7 +65,6 @@ function CtaLink({
   };
 
   if (resolved.external) {
-    // External links still tracked (client component)
     return (
       <TrackedExternalLink
         className={className}
@@ -73,7 +77,6 @@ function CtaLink({
     );
   }
 
-  // Internal links tracked (client component)
   return (
     <TrackedLink
       className={className}
@@ -106,9 +109,27 @@ function CtaRow({
   return (
     <div className={className}>
       <CtaLink cta={primary} className={primaryClass} placement="hero_primary" />
-      <CtaLink cta={secondary} className={secondaryClass} placement="hero_secondary" />
+      <CtaLink
+        cta={secondary}
+        className={secondaryClass}
+        placement="hero_secondary"
+      />
     </div>
   );
+}
+
+function Headline({
+  as = "h1",
+  className,
+  children,
+}: {
+  as?: HeadlineAs;
+  className: string;
+  children: React.ReactNode;
+}) {
+  if (as === "h2") return <h2 className={className}>{children}</h2>;
+  if (as === "p") return <p className={className}>{children}</p>;
+  return <h1 className={className}>{children}</h1>;
 }
 
 export function HeroSection(props: HeroProps) {
@@ -121,6 +142,7 @@ export function HeroSection(props: HeroProps) {
     media,
     variant,
     layout,
+    headlineAs = "h1",
     cutoutImage,
     signatureBackgroundFallbackSrc = "/images/hero-house.png",
     signatureCutoutFallbackSrc = "/images/veronica-cutout.png",
@@ -128,9 +150,13 @@ export function HeroSection(props: HeroProps) {
 
   const heroVariant: HeroVariant = (variant as HeroVariant) || "standard";
   const heroLayout: HeroLayout = (layout as HeroLayout) || "overlay";
+  const as: HeadlineAs = (headlineAs as HeadlineAs) || "h1";
 
   const imgUrl: string | undefined =
-    media?.image?.asset?.url || media?.thumbnail?.asset?.url || media?.asset?.url || media?.url;
+    media?.image?.asset?.url ||
+    media?.thumbnail?.asset?.url ||
+    media?.asset?.url ||
+    media?.url;
 
   const alt = media?.alt || headline || "";
 
@@ -144,35 +170,30 @@ export function HeroSection(props: HeroProps) {
     const cutoutSrc = cutoutUrl || signatureCutoutFallbackSrc;
 
     return (
-      <section>
+      <section aria-label="Hero">
         {/* MOBILE */}
-        <section className="lg:hidden bg-bg overflow-x-hidden">
+        <div className="lg:hidden bg-bg overflow-x-hidden">
           <div className="-mx-5 sm:-mx-8">
-    <div className="relative h-[clamp(300px,38svh,380px)] overflow-hidden">
+            <div className="relative h-[clamp(300px,38svh,380px)] overflow-hidden">
+              <Image
+                src={bgSrc}
+                alt=""
+                fill
+                priority
+                className="object-cover"
+                style={{ objectPosition: "center 8%" }}
+              />
 
-      <Image
-        src={bgSrc}
-        alt=""
-        fill
-        priority
-        className="object-cover"
-        style={{ objectPosition: "center 8%" }}
-      />
-
-              {/* Softer overlay (light) */}
+              {/* Overlays */}
               <div className="absolute inset-0 bg-gradient-to-r from-bg/70 via-bg/35 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 h-[40%] bg-gradient-to-t from-bg/82 to-transparent" />
-
-              {/* Slightly stronger overlay (dark) */}
               <div className="absolute inset-0 hidden dark:block bg-gradient-to-r from-bg/78 via-bg/40 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 hidden dark:block h-[40%] bg-gradient-to-t from-bg/88 to-transparent" />
 
+              {/* Cutout */}
               <div className="absolute inset-y-0 left-0 w-[400px] sm:w-[440px] pointer-events-none">
-
-  <div className="relative h-full w-full flex items-end">
-    <div className="relative w-full h-[min(420px,100%)] translate-y-2">
-
-
+                <div className="relative h-full w-full flex items-end">
+                  <div className="relative w-full h-[min(420px,100%)] translate-y-2">
                     <Image
                       src={cutoutSrc}
                       alt={headline || "Hero"}
@@ -188,15 +209,19 @@ export function HeroSection(props: HeroProps) {
           </div>
 
           <div className="container-page py-6">
-
             {headline ? (
-              <h1 className="font-serif text-[2.1rem] sm:text-[2.5rem] tracking-tight text-text leading-[1.05]">
+              <Headline
+                as={as}
+                className="font-serif text-[2.1rem] sm:text-[2.5rem] tracking-tight text-text leading-[1.05]"
+              >
                 {headline}
-              </h1>
+              </Headline>
             ) : null}
 
             {subheadline ? (
-              <p className="mt-4 text-[1.05rem] text-text/80 leading-relaxed">{subheadline}</p>
+              <p className="mt-4 text-[1.05rem] text-text/80 leading-relaxed">
+                {subheadline}
+              </p>
             ) : null}
 
             <CtaRow
@@ -207,10 +232,10 @@ export function HeroSection(props: HeroProps) {
               secondaryClass="btn-tertiary"
             />
           </div>
-        </section>
+        </div>
 
         {/* DESKTOP */}
-        <section className="hidden lg:block relative w-full overflow-hidden bg-bg h-[clamp(520px,58vh,700px)]">
+        <div className="hidden lg:block relative w-full overflow-hidden bg-bg h-[clamp(520px,58vh,700px)]">
           <Image
             src={bgSrc}
             alt=""
@@ -220,19 +245,17 @@ export function HeroSection(props: HeroProps) {
             style={{ objectPosition: "center 10%" }}
           />
 
-          {/* Softer overlay (light) */}
+          {/* Overlays */}
           <div className="absolute inset-0 bg-gradient-to-r from-bg/78 via-bg/45 to-bg/18" />
           <div className="absolute inset-x-0 bottom-0 h-[34%] bg-gradient-to-t from-bg/84 to-transparent" />
-
-          {/* Slightly stronger overlay (dark) */}
           <div className="absolute inset-0 hidden dark:block bg-gradient-to-r from-bg/82 via-bg/50 to-bg/22" />
           <div className="absolute inset-x-0 bottom-0 hidden dark:block h-[34%] bg-gradient-to-t from-bg/88 to-transparent" />
 
           <div className="relative z-10 container-page flex h-full items-center">
+            {/* Cutout */}
             <div className="absolute inset-y-0 left-0 w-[480px] xl:w-[520px] pointer-events-none">
-  <div className="relative h-full w-full flex items-end">
-    <div className="relative w-full h-[min(640px,100%)] translate-y-3">
-
+              <div className="relative h-full w-full flex items-end">
+                <div className="relative w-full h-[min(640px,100%)] translate-y-3">
                   <Image
                     src={cutoutSrc}
                     alt={headline || "Hero"}
@@ -240,17 +263,30 @@ export function HeroSection(props: HeroProps) {
                     priority
                     className="object-contain object-bottom"
                     sizes="(min-width: 1280px) 520px, 480px"
-
                   />
                 </div>
               </div>
             </div>
 
-            <div className="ml-auto max-w-xl pr-10" style={{ textShadow: "0 1px 2px rgba(0,0,0,0.08)" }}>
+            <div
+              className="ml-auto max-w-xl pr-10"
+              style={{ textShadow: "0 1px 2px rgba(0,0,0,0.08)" }}
+            >
               {eyebrow ? <div className="eyebrow text-text/80">{eyebrow}</div> : null}
-              {headline ? <h1 className="font-serif text-6xl tracking-tight text-text">{headline}</h1> : null}
+
+              {headline ? (
+                <Headline
+                  as={as}
+                  className="font-serif text-6xl tracking-tight text-text"
+                >
+                  {headline}
+                </Headline>
+              ) : null}
+
               {subheadline ? (
-                <p className="mt-6 text-lg text-text/80 leading-relaxed">{subheadline}</p>
+                <p className="mt-6 text-lg text-text/80 leading-relaxed">
+                  {subheadline}
+                </p>
               ) : null}
 
               <CtaRow
@@ -262,7 +298,7 @@ export function HeroSection(props: HeroProps) {
               />
             </div>
           </div>
-        </section>
+        </div>
       </section>
     );
   }
@@ -271,17 +307,24 @@ export function HeroSection(props: HeroProps) {
   // STANDARD HERO (non-homepage)
   // =========================
 
-  const overlay = (
-    <section className="relative overflow-hidden bg-bg">
+  const OverlayHero = () => (
+    <section aria-label="Hero" className="relative overflow-hidden bg-bg">
       {imgUrl ? (
-        <div className="relative h-[520px] w-full">
+        <div
+          className="
+            relative w-full
+            h-[clamp(280px,38svh,360px)]
+            sm:h-[clamp(360px,42svh,440px)]
+            lg:h-[clamp(420px,46vh,520px)]
+          "
+        >
           <Image src={imgUrl} alt={alt} fill className="object-cover" priority />
 
-          {/* Light mode: soft, universal */}
+          {/* Light mode */}
           <div className="absolute inset-0 bg-gradient-to-r from-bg/70 via-bg/35 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 h-[38%] bg-gradient-to-t from-bg/80 to-transparent" />
 
-          {/* Dark mode: slightly stronger */}
+          {/* Dark mode */}
           <div className="absolute inset-0 hidden dark:block bg-gradient-to-r from-bg/78 via-bg/40 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 hidden dark:block h-[38%] bg-gradient-to-t from-bg/85 to-transparent" />
         </div>
@@ -295,9 +338,17 @@ export function HeroSection(props: HeroProps) {
         <div className="container-page pb-10 sm:pb-0">
           <div className="max-w-2xl">
             {eyebrow ? <div className="eyebrow text-text/80">{eyebrow}</div> : null}
-            {headline ? <h1 className="hero-shout text-text">{headline}</h1> : null}
+
+            {headline ? (
+              <Headline as={as} className="hero-shout text-text">
+                {headline}
+              </Headline>
+            ) : null}
+
             {subheadline ? (
-              <p className="mt-5 text-lg text-text/80 leading-relaxed max-w-prose">{subheadline}</p>
+              <p className="mt-5 text-lg text-text/80 leading-relaxed max-w-prose">
+                {subheadline}
+              </p>
             ) : null}
 
             <CtaRow
@@ -313,14 +364,22 @@ export function HeroSection(props: HeroProps) {
     </section>
   );
 
-  const split = (
-    <section className="bg-bg">
+  const SplitHero = () => (
+    <section aria-label="Hero" className="bg-bg">
       <div className="container-page py-12 grid gap-10 lg:grid-cols-2 items-center">
         <div>
           {eyebrow ? <div className="eyebrow">{eyebrow}</div> : null}
-          {headline ? <h1 className="hero-shout-md text-text">{headline}</h1> : null}
+
+          {headline ? (
+            <Headline as={as} className="hero-shout-md text-text">
+              {headline}
+            </Headline>
+          ) : null}
+
           {subheadline ? (
-            <p className="mt-5 text-lg text-text/80 leading-relaxed max-w-prose">{subheadline}</p>
+            <p className="mt-5 text-lg text-text/80 leading-relaxed max-w-prose">
+              {subheadline}
+            </p>
           ) : null}
 
           <CtaRow
@@ -334,16 +393,16 @@ export function HeroSection(props: HeroProps) {
 
         <div className="relative">
           {imgUrl ? (
-            <div className="card media-frame relative h-[360px] sm:h-[420px] w-full overflow-hidden">
+            <div className="card media-frame relative h-[320px] sm:h-[380px] lg:h-[420px] w-full overflow-hidden">
               <Image src={imgUrl} alt={alt} fill className="object-cover" priority />
             </div>
           ) : (
-            <div className="card media-frame h-[360px] sm:h-[420px] w-full" />
+            <div className="card media-frame h-[320px] sm:h-[380px] lg:h-[420px] w-full" />
           )}
         </div>
       </div>
     </section>
   );
 
-  return heroLayout === "split" ? split : overlay;
+  return heroLayout === "split" ? <SplitHero /> : <OverlayHero />;
 }

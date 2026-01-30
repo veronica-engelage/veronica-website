@@ -57,6 +57,8 @@
   --track-signal: 0.14em;
   --track-display: 0.22em;
 
+  --text-body: 1.125rem; /* 18px at 16px base */
+ 
   --text-xs: 0.8125rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
@@ -185,7 +187,11 @@ body.dark {
   h5 { font-size: var(--h5); line-height: var(--lh-snug); }
   h6 { font-size: var(--h6); line-height: var(--lh-snug); }
 
-  p { color: rgb(var(--muted)); }
+ p {
+  font-size: var(--text-body);
+  line-height: var(--lh-normal);
+  color: rgb(var(--muted));
+}
 
   a { color: inherit; }
 
@@ -239,7 +245,9 @@ body.dark {
 
   /* For text-heavy sections */
   .container-prose {
-    @apply mx-auto w-full max-w-[72ch] px-5 sm:px-8;
+  .container-prose { @apply mx-auto w-full max-w-[72ch] px-5 sm:px-8; }
+  .container-prose-narrow { @apply mx-auto w-full max-w-[60ch] px-5 sm:px-8; }
+  .container-wide { @apply mx-auto w-full max-w-[1200px] px-5 sm:px-8; } /* basically container-page */
   }
 
   .surface {
