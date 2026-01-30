@@ -148,7 +148,7 @@ export function HeroSection(props: HeroProps) {
         {/* MOBILE */}
         <section className="lg:hidden bg-bg overflow-x-hidden">
           <div className="-mx-5 sm:-mx-8">
-    <div className="relative h-[clamp(420px,calc(100svh-140px),560px)] overflow-hidden">
+    <div className="relative h-[clamp(300px,38svh,380px)] overflow-hidden">
 
       <Image
         src={bgSrc}
@@ -187,7 +187,8 @@ export function HeroSection(props: HeroProps) {
             </div>
           </div>
 
-          <div className="container-page py-10">
+          <div className="container-page py-6">
+
             {headline ? (
               <h1 className="font-serif text-[2.1rem] sm:text-[2.5rem] tracking-tight text-text leading-[1.05]">
                 {headline}
@@ -195,13 +196,13 @@ export function HeroSection(props: HeroProps) {
             ) : null}
 
             {subheadline ? (
-              <p className="mt-6 text-lg text-text/80 leading-relaxed">{subheadline}</p>
+              <p className="mt-4 text-[1.05rem] text-text/80 leading-relaxed">{subheadline}</p>
             ) : null}
 
             <CtaRow
               primary={cta}
               secondary={secondaryCta}
-              className="mt-10 flex flex-wrap items-center gap-6"
+              className="mt-6 flex flex-wrap items-center gap-4"
               primaryClass="btn btn-primary"
               secondaryClass="btn-tertiary"
             />
