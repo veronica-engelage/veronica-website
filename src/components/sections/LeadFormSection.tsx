@@ -70,14 +70,16 @@ export function LeadFormSection({
     };
 
     try {
-      // TODO: replace with real endpoint
-      // await fetch("/api/leads", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(payload),
-      // });
+const res = await fetch("/api/contact", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(payload),
+});
 
-      // Track only after "success"
+if (!res.ok) {
+  throw new Error("Request failed");
+}
+
       track("lead_form_submit", {
         placement: "lead_form_section",
         method: "form",
