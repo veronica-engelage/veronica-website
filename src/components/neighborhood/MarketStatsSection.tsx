@@ -5,6 +5,7 @@ type TrendPoint = {
   medianListingPrice?: number | null;
   pricePerSqft?: number | null;
   activeListingCount?: number | null;
+  activeListingCountYoY?: number | null;
   pendingListingCount?: number | null;
   medianDaysOnMarket?: number | null;
   medianListingPriceYoY?: number | null;
