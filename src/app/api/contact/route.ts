@@ -15,11 +15,12 @@ function escapeHtml(s: string) {
 
 export async function POST(req: Request) {
   try {
-    const { name, email, message, company} = await req.json();
+    const { name, email, message, company, sourcePath } = await req.json();
 
     const cleanName = String(name || "").trim();
     const cleanEmail = String(email || "").trim();
     const cleanMsg = String(message || "").trim();
+    const cleanSource = String(sourcePath || "").trim();
 
     if (!cleanEmail) {
       return Response.json({ error: "Email is required" }, { status: 400 });
@@ -44,6 +45,7 @@ if (typeof company === "string" && company.trim().length > 0) {
           <h2 style="margin:0 0 12px 0">New website lead</h2>
           <p style="margin:0 0 6px 0"><strong>Name:</strong> ${escapeHtml(cleanName || "—")}</p>
           <p style="margin:0 0 12px 0"><strong>Email:</strong> ${escapeHtml(cleanEmail)}</p>
+          <p style="margin:0 0 12px 0"><strong>Source:</strong> ${escapeHtml(cleanSource || "Unknown")}</p>
           <p style="margin:0"><strong>Message:</strong></p>
           <p style="margin:6px 0 0 0;white-space:pre-wrap">${escapeHtml(cleanMsg || "—")}</p>
         </div>

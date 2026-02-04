@@ -239,6 +239,26 @@ const query = `*[_type == "page" && slug.current == $slug][0]{
   }
 }
 
+    },
+
+    _type == "sectionCommunityCarousel" => {
+      eyebrow,
+      headline,
+      mode,
+      "markets": markets[]->{
+        _id,
+        name,
+        "slug": slug.current,
+        summary,
+        heroImage->{ alt, image{asset->{url}} }
+      },
+      "neighborhoods": neighborhoods[]->{
+        _id,
+        name,
+        "slug": slug.current,
+        summary,
+        heroImage->{ alt, image{asset->{url}} }
+      }
     }
   }
 }`;

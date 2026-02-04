@@ -161,6 +161,7 @@ export function HeroSection(props: HeroProps) {
   const alt = media?.alt || headline || "";
 
   const cutoutUrl: string | undefined = cutoutImage?.asset?.url || cutoutImage?.url;
+  const unoptimized = imgUrl?.endsWith(".svg");
 
   // =========================
   // SIGNATURE (homepage cutout)
@@ -182,6 +183,7 @@ export function HeroSection(props: HeroProps) {
                 priority
                 className="object-cover"
                 style={{ objectPosition: "center 8%" }}
+                unoptimized={unoptimized}
               />
 
               {/* Overlays */}
@@ -201,6 +203,7 @@ export function HeroSection(props: HeroProps) {
                       priority
                       className="object-contain object-bottom"
                       sizes="(min-width: 640px) 440px, 400px"
+                      unoptimized={cutoutSrc?.endsWith(".svg") || undefined}
                     />
                   </div>
                 </div>

@@ -217,6 +217,26 @@ const homeQuery = groq`
           consentText,
           submitCta
         }
+      },
+
+      _type == "sectionCommunityCarousel" => {
+        eyebrow,
+        headline,
+        mode,
+        "markets": markets[]->{
+          _id,
+          name,
+          "slug": slug.current,
+          summary,
+          heroImage->{ alt, image{asset->{url}} }
+        },
+        "neighborhoods": neighborhoods[]->{
+          _id,
+          name,
+          "slug": slug.current,
+          summary,
+          heroImage->{ alt, image{asset->{url}} }
+        }
       }
     }
   }

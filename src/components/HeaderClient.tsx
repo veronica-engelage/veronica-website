@@ -142,7 +142,16 @@ export default function HeaderClient({
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 16);
+    const EXPAND_AT = 6;
+    const COLLAPSE_AT = 36;
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled((prev) => {
+        if (!prev && y > COLLAPSE_AT) return true;
+        if (prev && y < EXPAND_AT) return false;
+        return prev;
+      });
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll as any);
@@ -156,7 +165,7 @@ export default function HeaderClient({
     return () => window.removeEventListener("resize", onResize as any);
   }, []);
 
-  const mobileLinkClass = "text-sm text-text/80 hover:text-text transition";
+  const mobileLinkClass = "text-lg sm:text-xl text-text/80 hover:text-text transition";
 
   const mobileCta: NavItem =
     cta?.href
@@ -280,7 +289,7 @@ export default function HeaderClient({
       {open && (
         <div className="border-t border-border bg-bg/96 backdrop-blur">
           <div className="container-page py-6">
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 md:ml-auto md:max-w-xs lg:max-w-sm">
               {nav?.map((item, i) => (
                 <NavLink
                   key={`${item.label}-m-${i}`}

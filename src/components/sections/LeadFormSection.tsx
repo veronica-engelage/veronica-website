@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 
 declare global {
   interface Window {
@@ -34,6 +35,7 @@ export function LeadFormSection({
 
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [showMessage, setShowMessage] = useState(false);
+  const pathname = usePathname();
 
   const headline = title || "Get in touch";
   const sub = intro || "Send a quick note. I’ll respond personally.";
@@ -68,6 +70,7 @@ export function LeadFormSection({
       email: String(data.get("email") || "").trim(),
       message: String(data.get("message") || "").trim(),
       company: String(data.get("company") || "").trim(), // honeypot
+      sourcePath: pathname || "",
     };
 
     try {
