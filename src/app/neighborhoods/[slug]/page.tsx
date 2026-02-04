@@ -90,6 +90,8 @@ type MarketStat = {
   activeListingCount?: number | null;
   pendingListingCount?: number | null;
   medianDaysOnMarket?: number | null;
+  marketHotnessScore?: number | null;
+  marketHotnessRank?: number | null;
   sourceLabel?: string | null;
   sourceUrl?: string | null;
 };
