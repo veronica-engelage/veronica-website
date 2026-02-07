@@ -305,6 +305,7 @@ export default async function NeighborhoodPage({
 
   const series = weightedSeries(stats, zipMappings).slice(-12);
   const latest = series[series.length - 1];
+  const latestSource = stats[stats.length - 1];
 
   const marketPlaceholderValues: MarketPlaceholderValues = {
     marketMonth: latest?.month ? formatMonthShort(latest.month) : "latest",
@@ -513,8 +514,8 @@ export default async function NeighborhoodPage({
           <MarketStatsSection
             neighborhood={neighborhood.name}
             trend={series}
-            sourceLabel={latest?.sourceLabel}
-            sourceUrl={latest?.sourceUrl}
+            sourceLabel={latestSource?.sourceLabel}
+            sourceUrl={latestSource?.sourceUrl}
           />
         </div>
       ) : null}
