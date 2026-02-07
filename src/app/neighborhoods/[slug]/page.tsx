@@ -23,6 +23,16 @@ const neighborhoodQuery = groq`
     summary,
     overview,
     lifestyle,
+    schools[]{
+      name,
+      level,
+      type,
+      ratingLabel,
+      ratingValue,
+      ratingYear,
+      sourceUrl,
+      qualitativeNote
+    },
     amenities,
     buyerInsights,
     sellerInsights,
@@ -97,8 +107,25 @@ type MarketStat = {
 };
 
 type ZipMapping = { zip: string; weight?: number | null };
+type SchoolEntry = {
+  name: string;
+  level?: string | null;
+  type?: string | null;
+  ratingLabel?: string | null;
+  ratingValue?: number | null;
+  ratingYear?: string | null;
+  sourceUrl?: string | null;
+  qualitativeNote?: string | null;
+};
 
 type ZipCentroidMap = Record<string, { lat: number; lng: number }>;
+
+type MarketPlaceholderValues = {
+  marketMonth: string;
+  medianListingPrice: string;
+  activeListingCount: string;
+  medianDaysOnMarket: string;
+};
 
 function weightedSeries(stats: MarketStat[], mappings: ZipMapping[]) {
   if (!stats.length || !mappings.length) return [];
@@ -165,6 +192,36 @@ function weightedSeries(stats: MarketStat[], mappings: ZipMapping[]) {
   });
 
   return points;
+}
+
+function formatMoney(n?: number | null) {
+  if (!n || !Number.isFinite(n)) return "—";
+  return `$${Math.round(n).toLocaleString()}`;
+}
+
+function formatNumber(n?: number | null) {
+  if (n === null || n === undefined || !Number.isFinite(n)) return "—";
+  return Math.round(n).toLocaleString();
+}
+
+function formatMonthShort(month: string) {
+  const [y, m] = month.split("-");
+  const monthNames = [
+    "Jan","Feb","Mar","Apr","May","Jun",
+    "Jul","Aug","Sep","Oct","Nov","Dec",
+  ];
+  const idx = Number(m) - 1;
+  const yy = y?.slice(-2) || y;
+  return `${monthNames[idx] || m} '${yy}`;
+}
+
+function applyMarketPlaceholders(text: string | null | undefined, values: MarketPlaceholderValues) {
+  if (!text) return "";
+  return text
+    .replaceAll("{{marketMonth}}", values.marketMonth)
+    .replaceAll("{{medianListingPrice}}", values.medianListingPrice)
+    .replaceAll("{{activeListingCount}}", values.activeListingCount)
+    .replaceAll("{{medianDaysOnMarket}}", values.medianDaysOnMarket);
 }
 
 function formatNeighborhoodTitle(name: string, municipality?: string | null) {
@@ -247,7 +304,14 @@ export default async function NeighborhoodPage({
     : [];
 
   const series = weightedSeries(stats, zipMappings).slice(-12);
-  const latest = stats[stats.length - 1];
+  const latest = series[series.length - 1];
+
+  const marketPlaceholderValues: MarketPlaceholderValues = {
+    marketMonth: latest?.month ? formatMonthShort(latest.month) : "latest",
+    medianListingPrice: formatMoney(latest?.medianListingPrice),
+    activeListingCount: formatNumber(latest?.activeListingCount),
+    medianDaysOnMarket: formatNumber(latest?.medianDaysOnMarket),
+  };
 
   const marketHero =
     neighborhood?.municipality
@@ -300,6 +364,10 @@ export default async function NeighborhoodPage({
       : undefined,
   };
 
+  const schools: SchoolEntry[] = Array.isArray(neighborhood.schools)
+    ? neighborhood.schools
+    : [];
+
   return (
     <main>
       <section className="container-page py-10 sm:py-14">
@@ -330,6 +398,9 @@ export default async function NeighborhoodPage({
           <span className="text-xs uppercase tracking-[0.18em] text-muted/80">Jump to</span>
           <a href="#overview" className="hover:text-text transition">Overview</a>
           <a href="#lifestyle" className="hover:text-text transition">Lifestyle</a>
+          {schools.length ? (
+            <a href="#schools" className="hover:text-text transition">Schools</a>
+          ) : null}
           <a href="#stats" className="hover:text-text transition">Market Stats</a>
           <a href="#insights" className="hover:text-text transition">Insights</a>
           <a href="#map" className="hover:text-text transition">Map</a>
@@ -385,6 +456,55 @@ export default async function NeighborhoodPage({
           </div>
         </div>
       </section>
+
+      {schools.length ? (
+        <>
+          <SpacerDivider space="md" />
+          <section id="schools" className="container-page py-12 scroll-mt-24">
+            <div className="eyebrow">Schools</div>
+            <h2 className="mt-2 text-3xl font-semibold">Schools & Education</h2>
+            <p className="mt-3 text-sm text-muted leading-relaxed max-w-2xl">
+              School quality data is sourced from the South Carolina School Report Cards.
+            </p>
+            <div className="mt-6 grid gap-y-6 gap-x-10 md:grid-cols-2">
+              {schools.map((school, i) => (
+                <div key={`${school.name}-${i}`} className="border-t border-border pt-4">
+                  <div className="text-lg font-semibold text-text">{school.name}</div>
+                  <div className="mt-2 text-sm text-muted">
+                    {[school.level, school.type].filter(Boolean).join(" · ")}
+                  </div>
+                  {school.qualitativeNote ? (
+                    <p className="mt-2 text-sm text-muted leading-relaxed">
+                      {school.qualitativeNote}
+                    </p>
+                  ) : null}
+                  {(school.ratingLabel || school.ratingValue) ? (
+                    <div className="mt-2 text-sm text-text">
+                      <span className="text-muted">SC Report Card:</span>{" "}
+                      <span className="font-semibold">
+                        {school.ratingLabel || school.ratingValue}
+                      </span>
+                      {school.ratingYear ? (
+                        <span className="text-muted"> · {school.ratingYear}</span>
+                      ) : null}
+                    </div>
+                  ) : null}
+                  {school.sourceUrl ? (
+                    <a
+                      href={school.sourceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-2 inline-block text-sm text-muted underline underline-offset-4 hover:text-text"
+                    >
+                      View official report
+                    </a>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          </section>
+        </>
+      ) : null}
 
       <SpacerDivider space="md" />
 
@@ -459,9 +579,11 @@ export default async function NeighborhoodPage({
             <div className="mt-6 grid gap-y-6 gap-x-10 md:grid-cols-2">
               {neighborhood.faqs.map((faq: any, i: number) => (
                 <div key={i} className="border-t border-border pt-4">
-                  <div className="text-sm font-semibold">{faq.question}</div>
+                  <div className="text-sm font-semibold">
+                    {applyMarketPlaceholders(faq.question, marketPlaceholderValues)}
+                  </div>
                   <p className="mt-3 text-sm text-muted leading-relaxed">
-                    {faq.answer}
+                    {applyMarketPlaceholders(faq.answer, marketPlaceholderValues)}
                   </p>
                 </div>
               ))}
