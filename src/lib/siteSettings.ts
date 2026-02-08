@@ -13,6 +13,8 @@ const query = groq`
   agentName,
   brokerageName,
   brandTagline,
+  primaryLocation,
+  address,
   phone,
   email,
   headerNav[]{label, href},

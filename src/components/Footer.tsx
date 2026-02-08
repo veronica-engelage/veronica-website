@@ -1,43 +1,14 @@
-import BrandLockup from "@/components/BrandLockup";
 import Image from "next/image";
 import { getSiteSettings } from "@/lib/siteSettings";
-import FooterContactTrack from "@/components/footer/FooterContactTrack";
-
-function formatPhoneDisplay(phone: string) {
-  const digits = phone.replace(/\D/g, "");
-  if (digits.length === 10) {
-    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-  }
-  return phone;
-}
-
-function formatPhoneTel(phone: string) {
-  const digits = phone.replace(/\D/g, "");
-  // Returns E.164 without "tel:" prefix
-  return digits.length === 10 ? `+1${digits}` : `+${digits}`;
-}
 
 type FooterLink = { label?: string; href?: string };
 
-export default async function Footer({ phone }: { phone: string }) {
+export default async function Footer({ phone: _phone }: { phone: string }) {
   const settings = await getSiteSettings().catch(() => null);
 
-  // --- copy defaults from your current design ---
-  const fallbackTagline =
-    "Charleston & Mount Pleasant real estate, guided with discretion, local intelligence, and calm execution.";
-
-  const fallbackLocation = "Charleston & Mount Pleasant, SC";
-
-  // --- pull from siteSettings (but do not break if missing) ---
-  const phoneRaw = (settings?.phone || phone || "").toString();
-  const phoneDisplay = phoneRaw ? formatPhoneDisplay(phoneRaw) : "";
-  const phoneTel = phoneRaw ? formatPhoneTel(phoneRaw) : "";
-
-  const tagline = (settings?.footerTagline ||
-    settings?.brandTagline ||
-    fallbackTagline) as string;
-
-  const locationLine = (settings?.locationLine || fallbackLocation) as string;
+  const addressLine = (settings?.address ||
+    settings?.primaryLocation ||
+    "") as string;
 
   const footerNav: FooterLink[] = Array.isArray(settings?.footerNav)
     ? settings.footerNav.filter(Boolean)
@@ -54,8 +25,18 @@ export default async function Footer({ phone }: { phone: string }) {
         { label: "Do Not Sell or Share My Personal Information", href: "/do-not-sell" },
       ];
 
-  const ctaLabel = (settings?.footerCtaLabel || "Get in touch") as string;
-  const ctaHref = (settings?.footerCtaHref || "/contact") as string;
+  const normalizedLegalLinks = legalLinks.map((link) => {
+    const label = link?.label?.trim();
+    if (!label) return link;
+    const lower = label.toLowerCase();
+    if (lower === "fair-housing" || lower === "fair housing") {
+      return { ...link, label: "Fair Housing" };
+    }
+    if (lower === "terms of use" || lower === "terms of use") {
+      return { ...link, label: "Terms of Use" };
+    }
+    return link;
+  });
 
   const agentName = (settings?.agentName || "Veronica Engelage") as string;
   const brokerageName = (settings?.brokerageName || "Carolina One Real Estate") as string;
@@ -66,34 +47,55 @@ export default async function Footer({ phone }: { phone: string }) {
 
   return (
     <footer className="border-t border-border bg-bg">
-      <div className="container-page py-16">
+      <div className="container-page pt-14 pb-10">
         {/* Top */}
-        <div className="grid gap-10 md:grid-cols-2 md:items-start">
-          {/* Brand */}
-          <div className="max-w-xl">
-            <BrandLockup />
-            <p className="mt-4 max-w-md text-sm text-muted">{tagline}</p>
+        <div className="flex flex-col items-center text-center">
+          <div className="leading-[1.1]">
+            <div className="font-serif text-[30px] tracking-[-0.015em] text-brand dark:text-brandContrast sm:text-[34px]">
+              {agentName}
+            </div>
+            <div className="mt-[4px] font-serif text-[14px] uppercase tracking-[0.08em] text-prestige">
+              {brokerageName}
+            </div>
           </div>
 
-          {/* Contact (client tracked) */}
-          <div className="md:justify-self-end">
-            <FooterContactTrack
-              ctaLabel={ctaLabel}
-              ctaHref={ctaHref}
-              phoneDisplay={phoneDisplay || undefined}
-              phoneTel={phoneTel || undefined}
-              locationLine={locationLine}
-            />
+          <div className="mt-6">
+            <a
+              href="https://carolinaone.com"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-block opacity-[0.85] transition-opacity hover:opacity-100 grayscale"
+              aria-label={brokerageName}
+            >
+              <Image
+                src="/logos/carolinaonelogo_dark.png"
+                alt={brokerageName}
+                width={270}
+                height={74}
+                className="h-[52px] w-auto dark:hidden"
+              />
+              <Image
+                src="/logos/carolinaonelogo_light.png"
+                alt={brokerageName}
+                width={270}
+                height={74}
+                className="hidden h-[52px] w-auto dark:block"
+              />
+            </a>
           </div>
+
+          {addressLine ? (
+            <div className="mt-6 text-sm text-muted">{addressLine}</div>
+          ) : null}
         </div>
 
         {/* Bottom */}
         <div className="mt-12 border-t border-border pt-6">
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div className="flex flex-col items-center gap-4 text-center">
             {/* Legal links + disclaimer */}
             <div className="min-w-0">
-              <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted">
-                {legalLinks
+              <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-muted">
+                {normalizedLegalLinks
                   .filter((l) => l?.label && l?.href)
                   .map((l) => (
                     <a key={`${l.href}-${l.label}`} href={l.href!} className="hover:text-text">
@@ -102,24 +104,49 @@ export default async function Footer({ phone }: { phone: string }) {
                   ))}
               </div>
 
-              <p className="mt-4 max-w-3xl text-xs text-muted leading-relaxed">
+              <p className="mt-4 max-w-[800px] text-xs text-muted leading-relaxed">
                 <strong>Disclaimer:</strong> {disclaimer}
               </p>
+
+              <div className="mt-4 flex items-center justify-center gap-3">
+                <div className="opacity-[0.75] grayscale">
+                  <Image
+                    src="/logos/nar_membershipmark_dark.png"
+                    alt="National Association of Realtors membership mark"
+                    width={120}
+                    height={40}
+                    className="h-6 w-auto dark:hidden"
+                  />
+                  <Image
+                    src="/logos/nar_membershipmark_light.png"
+                    alt="National Association of Realtors membership mark"
+                    width={120}
+                    height={40}
+                    className="hidden h-6 w-auto dark:block"
+                  />
+                </div>
+
+                <div className="opacity-[0.75] grayscale">
+                  <Image
+                    src="/logos/equal-housing-opportunity-logo_dark.png"
+                    alt="Equal Housing Opportunity"
+                    width={110}
+                    height={40}
+                    className="h-6 w-auto dark:hidden"
+                  />
+                  <Image
+                    src="/logos/equal_housing_opportunity_logo_light.png"
+                    alt="Equal Housing Opportunity"
+                    width={110}
+                    height={40}
+                    className="hidden h-6 w-auto dark:block"
+                  />
+                </div>
+              </div>
 
               <div className="mt-4 text-xs text-muted">
                 © {new Date().getFullYear()} {agentName} · {brokerageName}
               </div>
-            </div>
-
-            {/* Broker logo (small, aligned, not screaming) */}
-            <div className="shrink-0 md:pt-1">
-              <Image
-                src="/logos/carolina-one-dark.png"
-                alt={brokerageName}
-                width={140}
-                height={36}
-                className="opacity-70"
-              />
             </div>
           </div>
         </div>
