@@ -14,6 +14,9 @@ const excludedPageSlugs = [
   "neighborhoods",
   "subdivisions",
   "listings",
+  "[slug]",
+  "/subdivisions",
+  "subdivisions/[slug]",
   "thank-you",
   "thanks",
   "admin",
@@ -65,6 +68,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  const normalizedPageRoutes = pageRoutes
+    .map((route) => {
+      const url = route.url.replace(/\/{2,}/g, "/").replace("https:/", "https://");
+      const path = url.replace(siteUrl, "");
+      return { ...route, url, path };
+    })
+    .filter((route) => {
+      const path = route.path.toLowerCase();
+      if (path === "/subdivisions" || path.startsWith("/subdivisions/")) return false;
+      if (path === "/[slug]") return false;
+      return true;
+    })
+    .map(({ path: _path, ...rest }) => rest);
+
   const dedupeBySlug = (items: SlugEntry[]) => {
     const map = new Map<string, SlugEntry>();
     for (const item of items) {
@@ -99,7 +116,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...staticRoutes,
-    ...pageRoutes,
+    ...normalizedPageRoutes,
     ...marketRoutes,
     ...neighborhoodRoutes,
   ];
