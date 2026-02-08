@@ -361,17 +361,6 @@ export default async function NeighborhoodPage({
     },
   ];
 
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: breadcrumbItems.map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: item.name,
-      item: item.url,
-    })),
-  };
-
   const mapCenter =
     neighborhood?.map?.centerLat && neighborhood?.map?.centerLng
       ? { lat: neighborhood.map.centerLat, lng: neighborhood.map.centerLng }
@@ -672,11 +661,6 @@ export default async function NeighborhoodPage({
         type="application/ld+json"
         // @ts-ignore
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
     </main>
   );
