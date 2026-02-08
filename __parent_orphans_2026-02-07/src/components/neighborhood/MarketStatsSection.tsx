@@ -80,22 +80,6 @@ function formatMonth(month: string) {
   return `${monthNames[idx] || m} ${y}`;
 }
 
-function clamp(n: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, n));
-}
-
-function hotnessLabel(value?: number | null) {
-  if (value === null || value === undefined || !Number.isFinite(value)) return "—";
-  const v = clamp(value, 0, 100);
-  if (v < 10) return "Very Cool";
-  if (v < 20) return "Cool";
-  if (v < 40) return "Slightly Cool";
-  if (v < 60) return "Warm";
-  if (v < 80) return "Slightly Hot";
-  if (v < 90) return "Hot";
-  return "Very Hot";
-}
-
 export function MarketStatsSection({
   neighborhood,
   trend,
@@ -126,88 +110,7 @@ export function MarketStatsSection({
         </div>
       </div>
 
-      <div className="mt-8">
-        <div className="text-xs uppercase tracking-[0.18em] text-muted">
-          Market Hotness Thermometer
-        </div>
-        <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
-          <div className="text-2xl font-semibold">
-            {formatNumber(latest.marketHotnessScore)} · {hotnessLabel(latest.marketHotnessScore)}
-          </div>
-          <div className="flex items-center gap-2 text-xs text-muted">
-            <span>MoM</span>
-            <TrendBadge value={hotnessMoM} />
-            <span className="ml-2 uppercase tracking-[0.18em]">Rank</span>
-            <span className="font-semibold text-text">{formatNumber(latest.marketHotnessRank)}</span>
-          </div>
-        </div>
-
-        <div className="relative mt-4 h-4 w-full rounded-full border border-border/70">
-          <div className="flex h-full w-full">
-            <div className="h-full" style={{ width: "10%", backgroundColor: "rgb(var(--brand) / 0.9)" }} />
-            <div className="h-full" style={{ width: "10%", backgroundColor: "rgb(var(--brand) / 0.75)" }} />
-            <div className="h-full" style={{ width: "20%", backgroundColor: "rgb(var(--brand) / 0.6)" }} />
-            <div
-              className="h-full"
-              style={{
-                width: "20%",
-                background:
-                  "linear-gradient(90deg, rgb(var(--brand) / 0.6) 0%, rgb(var(--ivory)) 35%, rgb(var(--ivory)) 70%, rgb(var(--brass) / 0.55) 100%)",
-              }}
-            />
-            <div className="h-full" style={{ width: "20%", backgroundColor: "rgb(var(--brass) / 0.55)" }} />
-            <div className="h-full" style={{ width: "10%", backgroundColor: "rgb(var(--brass) / 0.8)" }} />
-            <div className="h-full" style={{ width: "10%", backgroundColor: "rgb(var(--brass))" }} />
-          </div>
-          {typeof latest.marketHotnessScore === "number" ? (
-            <div
-              className="absolute top-1/2 h-6 w-6 -translate-y-1/2 rounded-full border-2 border-[rgb(var(--text))] bg-[rgb(var(--bg))] shadow"
-              style={{
-                left: `calc(${clamp(latest.marketHotnessScore, 0, 100)}% - 12px)`,
-              }}
-            />
-          ) : null}
-          {[10, 20, 40, 60, 80, 90].map((tick) => (
-            <div
-              key={tick}
-              className="absolute top-0 h-full w-px bg-white/80"
-              style={{ left: `${tick}%` }}
-            />
-          ))}
-        </div>
-        <div className="relative mt-2 h-4 w-full text-[10px] text-muted">
-          {[10, 20, 40, 60, 80, 90].map((tick) => (
-            <div
-              key={tick}
-              className="absolute -translate-x-1/2"
-              style={{ left: `${tick}%` }}
-            >
-              {tick}
-            </div>
-          ))}
-        </div>
-        <div className="relative mt-2 h-4 w-full text-[11px] text-muted">
-          {[
-            { label: "Very Cool", pos: 5 },
-            { label: "Cool", pos: 15 },
-            { label: "Slightly Cool", pos: 30 },
-            { label: "Warm", pos: 50 },
-            { label: "Slightly Hot", pos: 70 },
-            { label: "Hot", pos: 85 },
-            { label: "Very Hot", pos: 95 },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="absolute -translate-x-1/2"
-              style={{ left: `${item.pos}%` }}
-            >
-              {item.label}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-8 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-8 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-5">
         <div className="border-t border-border/60 pt-4 flex flex-col">
           <div className="text-xs uppercase tracking-[0.18em] text-muted min-h-[2.6rem]">
             Median Listing Price
@@ -261,6 +164,23 @@ export function MarketStatsSection({
           <div className="mt-1 flex items-center gap-2 text-xs text-muted">
             <span>MoM</span>
             <TrendBadge value={domMoM} />
+          </div>
+        </div>
+        <div className="border-t border-border/60 pt-4 flex flex-col">
+          <div className="text-xs uppercase tracking-[0.18em] text-muted min-h-[2.6rem]">
+            Market Hotness
+            <InfoTip text="A composite score reflecting demand vs. supply for this ZIP. Higher scores indicate a more competitive market." />
+          </div>
+          <div className="mt-2 text-2xl font-semibold min-h-[2.25rem] flex items-end">
+            {formatNumber(latest.marketHotnessScore)}
+          </div>
+          <div className="mt-1 flex items-center gap-2 text-xs text-muted">
+            <span>MoM</span>
+            <TrendBadge value={hotnessMoM} />
+          </div>
+          <div className="mt-2 inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs">
+            <span className="uppercase tracking-[0.18em] text-muted">Rank</span>
+            <span className="font-semibold text-text">{formatNumber(latest.marketHotnessRank)}</span>
           </div>
         </div>
       </div>

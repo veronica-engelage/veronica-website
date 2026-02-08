@@ -1,0 +1,435 @@
+@config "../../tailwind.config.mjs";
+@import "tailwindcss";
+
+/* ----------------------------
+   Brand base variables (raw)
+   ---------------------------- */
+:root {
+  --ink: 11 18 17;       /* #0b1211 */
+  --teal: 15 47 43;      /* #0f2f2b */
+  --linen: 246 243 237;  /* #f6f3ed */
+  --ivory: 244 242 237;  /* #f4f2ed */
+  --charcoal: 31 35 38;  /* #1f2326 */
+
+  --focus: 176 138 75;   /* brass */
+  --error: 180 83 60;    /* rust */
+  --brass: 176 138 75;   /* brass */
+
+  /* Luxury geometry:
+     - Cards: restrained
+     - CTA: slightly more generous
+     - Media: square (handled below)
+  */
+  --r-xs: 0px;   /* media should be square */
+  --r-sm: 6px;   /* inputs, small controls */
+  --r-md: 10px;  /* standard cards */
+  --r-lg: 14px;  /* CTA moments */
+
+  /* Quiet elevation (less floaty) */
+  --shadow-1: 0 1px 0 rgb(0 0 0 / 0.05), 0 10px 22px rgb(0 0 0 / 0.07);
+  --shadow-2: 0 1px 0 rgb(0 0 0 / 0.08), 0 16px 34px rgb(0 0 0 / 0.12);
+
+  /* ----------------------------
+     Semantic tokens (LIGHT)
+     ---------------------------- */
+  --bg: var(--linen);
+  --surface: 255 255 255;
+  --text: var(--ink);
+  --muted: 90 99 97;
+  --border: 220 214 206;
+
+  --brand: var(--teal);
+  --brand-contrast: var(--linen);
+  --prestige: var(--brass);
+
+  /* Hairline strokes */
+  --stroke: rgb(var(--border) / 0.42);
+
+  /* Typography */
+  --root-font: 16px;
+
+  --lh-tight: 1.1;
+  --lh-snug: 1.25;
+  --lh-normal: 1.6;
+
+  --track-tight: 0.06em;
+  --track-label: 0.10em;
+  --track-signal: 0.14em;
+  --track-display: 0.22em;
+
+  --text-body: 1.125rem; /* 18px at 16px base */
+ 
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.0625rem;
+
+  --h6: 1rem;
+  --h5: 1.125rem;
+  --h4: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
+  --h3: clamp(1.5rem, 1.25rem + 1.1vw, 1.875rem);
+  --h2: clamp(1.875rem, 1.5rem + 1.7vw, 2.25rem);
+  --h1: clamp(2.25rem, 1.6rem + 2.7vw, 3.25rem);
+
+  --signal-md: clamp(1.5rem, 1.2rem + 1.6vw, 2.25rem);
+  --signal-lg: clamp(2rem, 1.4rem + 3vw, 3.25rem);
+
+  --flow: 1rem;
+  --flow-tight: 0.5rem;
+  --flow-loose: 1.25rem;
+}
+
+/* ----------------------------
+   Semantic tokens (DARK)
+   ---------------------------- */
+:root.dark,
+html.dark,
+body.dark {
+  --bg: 9 14 14;
+  --surface: 15 20 20;
+  --text: 244 242 237;
+  --muted: 185 190 188;
+  --border: 45 55 54;
+
+  --stroke: rgb(var(--border) / 0.40);
+
+  --shadow-1: 0 1px 0 rgb(255 255 255 / 0.03), 0 14px 44px rgb(0 0 0 / 0.55);
+  --shadow-2: 0 1px 0 rgb(255 255 255 / 0.04), 0 22px 60px rgb(0 0 0 / 0.65);
+}
+
+/* ----------------------------
+   Base styles
+   ---------------------------- */
+@layer base {
+  /* Global box sizing (prevents “mystery overflow” from padding/borders) */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: var(--root-font);
+    font-feature-settings: "kern", "liga";
+    text-rendering: optimizeLegibility;
+
+    /* Prevent right-overhang on mobile */
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+    background: rgb(var(--bg));
+    color: rgb(var(--text));
+    font-size: var(--text-base);
+    line-height: var(--lh-normal);
+
+    /* Prevent horizontal jiggle */
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Prefer clip when supported (less “rubber band” weirdness than hidden) */
+  @supports (overflow: clip) {
+    html,
+    body {
+      overflow-x: clip;
+    }
+  }
+
+  /* Media/embeds are common overflow offenders */
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  iframe,
+  embed,
+  object {
+    max-width: 100%;
+  }
+
+  /* Long strings (URLs, emails, MLS IDs) */
+  p,
+  a,
+  li,
+  blockquote {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  /* Prevent code blocks from forcing horizontal scroll site-wide */
+  pre,
+  code {
+    max-width: 100%;
+  }
+
+  pre {
+    overflow-x: auto;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-serif {
+    font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+    color: rgb(var(--text));
+    letter-spacing: -0.01em;
+  }
+
+  h1 { font-size: var(--h1); line-height: var(--lh-tight); }
+  h2 { font-size: var(--h2); line-height: var(--lh-tight); }
+  h3 { font-size: var(--h3); line-height: var(--lh-snug); }
+  h4 { font-size: var(--h4); line-height: var(--lh-snug); }
+  h5 { font-size: var(--h5); line-height: var(--lh-snug); }
+  h6 { font-size: var(--h6); line-height: var(--lh-snug); }
+
+ p {
+  font-size: var(--text-body);
+  line-height: var(--lh-normal);
+  color: rgb(var(--muted));
+}
+
+  a { color: inherit; }
+
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgb(var(--focus) / 0.40);
+  }
+
+  /* Content rhythm */
+  main :where(h1,h2,h3,h4,h5,h6) {
+    margin-top: 1.6em;
+    margin-bottom: 0.6em;
+  }
+  main :where(h1) { margin-top: 0; }
+
+  main :where(p) {
+    margin-top: 0;
+    margin-bottom: var(--flow);
+  }
+
+  main :where(ul,ol) {
+    margin: 0 0 var(--flow) 0;
+    padding-left: 1.25rem;
+    color: rgb(var(--muted));
+  }
+
+  main :where(li) { margin: 0.25rem 0; }
+
+  main :where(blockquote) {
+    margin: 1.25rem 0;
+    padding-left: 1rem;
+    border-left: 1px solid var(--stroke);
+    color: rgb(var(--text));
+  }
+
+  main :where(hr) {
+    border: 0;
+    border-top: 1px solid var(--stroke);
+    margin: 2.25rem 0;
+  }
+}
+
+/* ----------------------------
+   Components
+   ---------------------------- */
+@layer components {
+  /* Slightly narrower reads better on desktop */
+  .container-page {
+    @apply mx-auto w-full max-w-[1200px] px-5 sm:px-8;
+  }
+
+  /* For text-heavy sections */
+  .container-prose {
+  .container-prose { @apply mx-auto w-full max-w-[72ch] px-5 sm:px-8; }
+  .container-prose-narrow { @apply mx-auto w-full max-w-[60ch] px-5 sm:px-8; }
+  .container-wide { @apply mx-auto w-full max-w-[1200px] px-5 sm:px-8; } /* basically container-page */
+  }
+
+  .surface {
+    background: rgb(var(--surface));
+    color: rgb(var(--text));
+  }
+
+  /* Standard card */
+  .card {
+    background: rgb(var(--surface));
+    border: 1px solid var(--stroke);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-1);
+    overflow: hidden; /* important: card radius clips inner content */
+  }
+
+  /* CTA-only card (use this class deliberately) */
+  .card-cta {
+    border-radius: var(--r-lg);
+  }
+
+  /* Softer cards for “too many boxes” (listing fact tiles, etc.) */
+  .card-ghost {
+    background: rgb(var(--surface) / 0.35);
+    border: 1px solid rgb(var(--border) / 0.18);
+    box-shadow: none;
+    border-radius: var(--r-sm);
+  }
+
+  .card-hover {
+    transition: transform 160ms ease, box-shadow 180ms ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-2);
+  }
+
+  /* MEDIA SHOULD BE SQUARE. */
+  .media-frame {
+    border-radius: 0 !important;
+    overflow: hidden;
+    background: rgb(0 0 0 / 0.03);
+  }
+
+  .media-frame img,
+  .media-frame picture,
+  .media-frame video {
+    border-radius: 0 !important;
+  }
+
+  .divider { border-top: 1px solid var(--stroke); }
+
+  /* Eyebrow / labels */
+  .eyebrow,
+  .label {
+    font-family: var(--font-raleway), system-ui, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: var(--track-label);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    color: rgb(var(--muted));
+  }
+
+  .eyebrow { margin-bottom: var(--flow-tight); }
+
+  /* Buttons: no pills */
+  .btn {
+    font-family: var(--font-raleway), system-ui, sans-serif;
+    letter-spacing: 0.01em;
+    font-size: 0.9375rem;
+    font-weight: 500;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 46px;
+    padding: 0.75rem 1.5rem;
+
+    border-radius: var(--r-md);
+    line-height: 1;
+
+    box-shadow: 0 1px 0 rgb(0 0 0 / 0.05), 0 10px 20px rgb(0 0 0 / 0.09);
+
+    transition:
+      transform 120ms ease,
+      box-shadow 160ms ease,
+      background-color 160ms ease,
+      border-color 160ms ease,
+      color 160ms ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn:active {
+    transform: translateY(0px) scale(0.99);
+    box-shadow: 0 1px 0 rgb(0 0 0 / 0.05), 0 6px 14px rgb(0 0 0 / 0.09);
+  }
+
+  .btn-primary {
+    background-color: rgb(var(--brand));
+    color: rgb(var(--brand-contrast));
+    border: 1px solid rgb(var(--brand) / 0.35);
+  }
+
+  .btn-primary:hover {
+    background-color: rgb(var(--brand) / 0.92);
+    border-color: rgb(var(--text) / 0.45);
+    transform: translateY(-1px);
+    box-shadow: 0 1px 0 rgb(0 0 0 / 0.06), 0 16px 32px rgb(0 0 0 / 0.14);
+  }
+
+  .btn-secondary {
+    border: 1px solid rgb(var(--brand) / 0.70);
+    color: rgb(var(--text));
+    background: transparent;
+    box-shadow: 0 1px 0 rgb(0 0 0 / 0.03);
+  }
+
+  .btn-secondary:hover {
+    background-color: rgb(var(--brand) / 0.08);
+    border-color: rgb(var(--prestige) / 0.50);
+    color: rgb(var(--text));
+    transform: translateY(-1px);
+    box-shadow: 0 1px 0 rgb(0 0 0 / 0.04), 0 12px 24px rgb(0 0 0 / 0.10);
+  }
+
+  .btn-tertiary {
+    font-family: var(--font-raleway), system-ui, sans-serif;
+    font-size: 0.9375rem;
+    line-height: 1.1;
+    padding: 0.75rem 0;
+    background: transparent;
+    border: 0;
+    color: rgb(var(--text) / 0.72);
+    text-decoration: underline;
+    text-underline-offset: 5px;
+    text-decoration-thickness: 1px;
+    transition: color 160ms ease, text-decoration-color 160ms ease;
+  }
+
+  .btn-tertiary:hover {
+    color: rgb(var(--prestige));
+    text-decoration-color: rgb(var(--prestige) / 0.7);
+  }
+
+  /* Forms */
+  .field {
+    border: 1px solid var(--stroke);
+    background: rgb(var(--surface));
+    color: rgb(var(--text));
+    border-radius: var(--r-sm);
+    font-size: var(--text-base);
+    @apply w-full px-3 py-3 transition-shadow;
+  }
+  .field::placeholder { color: rgb(var(--muted)); }
+  .field:focus-visible { box-shadow: 0 0 0 3px rgb(var(--focus) / 0.30); }
+}
+
+/* ----------------------------
+   Utilities
+   ---------------------------- */
+@layer utilities {
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+
+  .hero-shout {
+    font-family: var(--font-raleway), system-ui, sans-serif !important;
+    text-transform: uppercase !important;
+    letter-spacing: var(--track-display) !important;
+    font-weight: 300 !important;
+    font-size: var(--signal-lg) !important;
+    line-height: 1.05 !important;
+  }
+
+  .hero-shout-md {
+    font-family: var(--font-raleway), system-ui, sans-serif !important;
+    text-transform: uppercase !important;
+    letter-spacing: var(--track-signal) !important;
+    font-weight: 400 !important;
+    font-size: var(--signal-md) !important;
+    line-height: 1.1 !important;
+  }
+
+  .caption { font-size: var(--text-sm); color: rgb(var(--muted)); }
+}

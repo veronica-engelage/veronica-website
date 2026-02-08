@@ -1,0 +1,13 @@
+{
+	"telemetryDisclosed": 1770162404519,
+	"cliLastUpdateCheck": 1770239514707,
+	"cliHasUpdate": "5.8.0",
+	"telemetryConsent": {
+		"value": {
+			"type": "telemetry",
+			"status": "granted"
+		},
+		"updatedAt": 1770248967509
+	},
+	"cliLastUpdateNag": 1770239554950
+}
