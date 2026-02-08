@@ -8,6 +8,7 @@ type HeroLayout = "overlay" | "split";
 type CtaLike = any;
 
 type HeadlineAs = "h1" | "h2" | "p";
+type EyebrowAs = "h1" | "h2" | "p" | "div";
 
 type HeroProps = {
   eyebrow?: string | null;
@@ -19,6 +20,8 @@ type HeroProps = {
 
   /** NEW: controls semantic tag for the hero headline (default: h1) */
   headlineAs?: HeadlineAs | null;
+  /** controls semantic tag for the eyebrow (default: div) */
+  eyebrowAs?: EyebrowAs | null;
 
   cta?: CtaLike; // primary
   secondaryCta?: CtaLike; // secondary
@@ -132,6 +135,21 @@ function Headline({
   return <h1 className={className}>{children}</h1>;
 }
 
+function Eyebrow({
+  as = "div",
+  className,
+  children,
+}: {
+  as?: EyebrowAs;
+  className: string;
+  children: React.ReactNode;
+}) {
+  if (as === "h1") return <h1 className={className}>{children}</h1>;
+  if (as === "h2") return <h2 className={className}>{children}</h2>;
+  if (as === "p") return <p className={className}>{children}</p>;
+  return <div className={className}>{children}</div>;
+}
+
 export function HeroSection(props: HeroProps) {
   const {
     eyebrow,
@@ -143,6 +161,7 @@ export function HeroSection(props: HeroProps) {
     variant,
     layout,
     headlineAs = "h1",
+    eyebrowAs = "div",
     cutoutImage,
     signatureBackgroundFallbackSrc = "/images/hero-house.png",
     signatureCutoutFallbackSrc = "/images/veronica-cutout.png",
@@ -151,6 +170,9 @@ export function HeroSection(props: HeroProps) {
   const heroVariant: HeroVariant = (variant as HeroVariant) || "standard";
   const heroLayout: HeroLayout = (layout as HeroLayout) || "overlay";
   const as: HeadlineAs = (headlineAs as HeadlineAs) || "h1";
+  const resolvedEyebrowAs: EyebrowAs =
+    (eyebrowAs as EyebrowAs) || (heroVariant === "signatureCutout" ? "h1" : "div");
+  const useSignatureClasses = heroVariant === "signatureCutout";
 
   const imgUrl: string | undefined =
     media?.image?.asset?.url ||
@@ -212,17 +234,31 @@ export function HeroSection(props: HeroProps) {
           </div>
 
           <div className="container-page py-6">
+            {eyebrow ? (
+              <Eyebrow as={resolvedEyebrowAs} className="eyebrow text-text/80">
+                {eyebrow}
+              </Eyebrow>
+            ) : null}
+
             {headline ? (
               <Headline
                 as={as}
-                className="font-serif text-[2.1rem] sm:text-[2.5rem] tracking-tight text-text leading-[1.05]"
+                className={[
+                  "font-serif text-[2.1rem] sm:text-[2.5rem] tracking-tight text-text leading-[1.05]",
+                  useSignatureClasses ? "display-headline" : "",
+                ].join(" ")}
               >
                 {headline}
               </Headline>
             ) : null}
 
             {subheadline ? (
-              <p className="mt-4 text-[1.05rem] text-text/80 leading-relaxed">
+              <p
+                className={[
+                  "mt-4 text-[1.05rem] text-text/80 leading-relaxed",
+                  useSignatureClasses ? "subtitle" : "",
+                ].join(" ")}
+              >
                 {subheadline}
               </p>
             ) : null}
@@ -275,19 +311,31 @@ export function HeroSection(props: HeroProps) {
               className="ml-auto max-w-xl pr-10"
               style={{ textShadow: "0 1px 2px rgba(0,0,0,0.08)" }}
             >
-              {eyebrow ? <div className="eyebrow text-text/80">{eyebrow}</div> : null}
+              {eyebrow ? (
+                <Eyebrow as={resolvedEyebrowAs} className="eyebrow text-text/80">
+                  {eyebrow}
+                </Eyebrow>
+              ) : null}
 
               {headline ? (
                 <Headline
                   as={as}
-                  className="font-serif text-6xl tracking-tight text-text"
+                  className={[
+                    "font-serif text-6xl tracking-tight text-text",
+                    useSignatureClasses ? "display-headline" : "",
+                  ].join(" ")}
                 >
                   {headline}
                 </Headline>
               ) : null}
 
               {subheadline ? (
-                <p className="mt-6 text-lg text-text/80 leading-relaxed">
+                <p
+                  className={[
+                    "mt-6 text-lg text-text/80 leading-relaxed",
+                    useSignatureClasses ? "subtitle" : "",
+                  ].join(" ")}
+                >
                   {subheadline}
                 </p>
               ) : null}
@@ -340,7 +388,7 @@ export function HeroSection(props: HeroProps) {
       <div className="absolute inset-0 flex items-end sm:items-center">
         <div className="container-page pb-10 sm:pb-0">
           <div className="max-w-2xl">
-            {eyebrow ? <div className="eyebrow text-text/80">{eyebrow}</div> : null}
+            {eyebrow ? <Eyebrow as={resolvedEyebrowAs} className="eyebrow text-text/80">{eyebrow}</Eyebrow> : null}
 
             {headline ? (
               <Headline as={as} className="hero-shout text-text">
@@ -371,7 +419,7 @@ export function HeroSection(props: HeroProps) {
     <section aria-label="Hero" className="bg-bg">
       <div className="container-page py-12 grid gap-10 lg:grid-cols-2 items-center">
         <div>
-          {eyebrow ? <div className="eyebrow">{eyebrow}</div> : null}
+          {eyebrow ? <Eyebrow as={resolvedEyebrowAs} className="eyebrow">{eyebrow}</Eyebrow> : null}
 
           {headline ? (
             <Headline as={as} className="hero-shout-md text-text">

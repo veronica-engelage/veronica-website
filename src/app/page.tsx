@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { groq } from "next-sanity";
 import { notFound } from "next/navigation";
 import { SectionRenderer } from "@/components/sections/SectionRenderer";
@@ -6,6 +7,12 @@ import { getSiteSettings } from "@/lib/siteSettings";
 import { normalizeE164 } from "@/lib/phone";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "Veronica Engelage | Charleston & Mount Pleasant Realtor",
+  description:
+    "Veronica Engelage offers data-driven real estate guidance in Charleston & Mount Pleasant. Explore luxury listings, neighborhoods, and market insights.",
+};
 
 const homeQuery = groq`
   *[_type == "page" && slug.current == "home"][0]{
@@ -247,7 +254,12 @@ type HomeData = {
 } | null;
 
 function curateHomeSections(sections: any[]) {
-  return sections; // literally do nothing, Sanity is the source of truth
+  return sections.map((section) => {
+    if (section?._type === "sectionHero") {
+      return { ...section, headlineAs: "p", eyebrowAs: "h1" };
+    }
+    return section;
+  });
 }
 
 
