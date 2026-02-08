@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { groq } from "next-sanity";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 import { SectionRenderer } from "@/components/sections/SectionRenderer";
 import { sanityClient } from "@/sanity/client";
 import { getSiteSettings } from "@/lib/siteSettings";
@@ -270,12 +271,69 @@ export default async function HomePage() {
   const settings = await getSiteSettings().catch(() => null);
   const phone = normalizeE164(settings?.phone) || null;
 
+  const siteUrl = (settings?.siteUrl || "https://veronicachs.com").replace(/\/+$/, "");
+  const canonicalBase = siteUrl.replace("https://veronicachs.com", "https://www.veronicachs.com");
+  const agentName = settings?.agentName || "Veronica Engelage";
+  const brokerageName = settings?.brokerageName || "Carolina One Real Estate";
+  const telephone = settings?.phone || "+18548372944";
+  const email = settings?.email || "hello@veronicachs.com";
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "RealEstateAgent",
+    name: agentName,
+    image: "https://www.veronicachs.com/_next/image?url=%2Fimages%2Fveronica-profile.jpg&w=1200&q=75",
+    description:
+      "Veronica Engelage offers discreet, data-driven real estate guidance in Charleston & Mount Pleasant. Specializing in luxury listings and neighborhood insights.",
+    url: `${canonicalBase}/`,
+    telephone,
+    email,
+    priceRange: "$$$",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "2713 N Hwy 17",
+      addressLocality: "Mount Pleasant",
+      addressRegion: "SC",
+      postalCode: "29466",
+      addressCountry: "US",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: "32.8368",
+      longitude: "-79.8247",
+    },
+    openingHoursSpecification: {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      opens: "09:00",
+      closes: "17:00",
+    },
+    sameAs: [
+      "https://www.facebook.com/veronica.engelage/",
+      "https://www.instagram.com/veronica.chsrealtor/",
+      "https://www.linkedin.com/in/veronica-engelage-18844b377/",
+    ],
+    parentOrganization: {
+      "@type": "RealEstateAgent",
+      name: brokerageName,
+    },
+  };
+
   const rawSections = Array.isArray(home.sections) ? home.sections : [];
   const sections = curateHomeSections(rawSections);
 
   return (
-    <main>
-      <SectionRenderer sections={sections} phone={phone} />
-    </main>
+    <>
+      <Script
+        id="real-estate-agent-schema"
+        type="application/ld+json"
+        strategy="beforeInteractive"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
+      <main>
+        <SectionRenderer sections={sections} phone={phone} />
+      </main>
+    </>
   );
 }

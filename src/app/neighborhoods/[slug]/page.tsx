@@ -1,3 +1,4 @@
+import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -362,13 +363,23 @@ export default async function NeighborhoodPage({
       href: `/neighborhoods/${neighborhood.slug}`,
     },
   ];
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: breadcrumbItems.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
 
   const mapCenter =
     neighborhood?.map?.centerLat && neighborhood?.map?.centerLng
       ? { lat: neighborhood.map.centerLat, lng: neighborhood.map.centerLng }
       : computeCenterFromZips(zipMappings);
 
-  const jsonLd = {
+  const placeSchema = {
     "@context": "https://schema.org",
     "@type": "Place",
     name: neighborhood.name,
@@ -395,6 +406,19 @@ export default async function NeighborhoodPage({
 
   return (
     <main>
+      <Head>
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(placeSchema) }}
+        />
+      </Head>
+
       <nav aria-label="Breadcrumb" className="container-page pt-6">
         <ol className="m-0 flex list-none flex-wrap items-center gap-2 p-0 text-[11px] uppercase tracking-[0.18em] text-muted">
           <li>
@@ -659,11 +683,6 @@ export default async function NeighborhoodPage({
         </div>
       </section>
 
-      <script
-        type="application/ld+json"
-        // @ts-ignore
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
     </main>
   );
 }
