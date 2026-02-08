@@ -85,7 +85,7 @@ export default async function MarketsIndex() {
             <h1 className="text-2xl sm:text-3xl font-semibold text-text">
               {settings?.introHeadline || "Market overviews with neighborhood‑level clarity."}
             </h1>
-            <p className="mt-3 text-sm text-muted leading-relaxed max-w-2xl">
+            <p className="mt-3 text-[1.125rem] text-muted leading-relaxed max-w-2xl">
               {settings?.introText ||
                 "Explore Charleston‑area markets with curated neighborhood context, current pricing signals, and an editorial look at each community."}
             </p>
@@ -93,7 +93,7 @@ export default async function MarketsIndex() {
               <MarketsFilterList markets={markets} />
             </div>
           </div>
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-5 hidden md:block">
             <ContactInlineForm
               title="Reach out to Veronica"
               description="Tell me which markets you’re weighing and I’ll send a tailored snapshot."
@@ -122,12 +122,12 @@ export default async function MarketsIndex() {
                   </div>
                 </div>
                 <div className="lg:col-span-7">
-                  <div className="text-sm text-muted">Community</div>
+                  <div className="text-[1.125rem] text-muted">Community</div>
                   <h3 className="mt-2 text-3xl sm:text-4xl font-serif tracking-tight">
                     {market.name}
                   </h3>
                   {market.summary ? (
-                    <p className="mt-3 text-sm text-muted leading-relaxed max-w-2xl">
+                    <p className="mt-3 text-[1.125rem] text-muted leading-relaxed max-w-2xl">
                       {market.summary}
                     </p>
                   ) : null}
@@ -153,7 +153,7 @@ export default async function MarketsIndex() {
             <h2 className="mt-2 text-2xl sm:text-3xl font-semibold">
               Want a custom market brief?
             </h2>
-            <p className="mt-3 text-sm text-muted leading-relaxed max-w-2xl">
+            <p className="mt-3 text-[1.125rem] text-muted leading-relaxed max-w-2xl">
               I’ll share a tailored overview with market shifts, pricing signals,
               and the neighborhoods that match your goals.
             </p>

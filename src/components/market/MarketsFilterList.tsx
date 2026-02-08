@@ -57,7 +57,7 @@ export function MarketsFilterList({ markets }: { markets: MarketItem[] }) {
               key={s.href}
               type="button"
               className={[
-                "w-full text-left px-4 py-3 text-sm",
+                "w-full text-left px-4 py-3 text-[1.125rem]",
                 i === activeIndex ? "bg-[rgb(var(--surface))]" : "hover:bg-[rgb(var(--surface))]",
               ].join(" ")}
               onClick={() => router.push(s.href)}

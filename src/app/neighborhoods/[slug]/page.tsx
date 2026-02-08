@@ -418,7 +418,7 @@ export default async function NeighborhoodPage({
           <div className="lg:col-span-6">
             <div className="eyebrow">Neighborhood Guide</div>
             <h1 className="mt-3 text-4xl sm:text-5xl tracking-tight">{headline}</h1>
-            <p className="mt-4 text-base sm:text-lg text-muted leading-relaxed">
+            <p className="mt-4 text-[1.125rem] sm:text-lg text-muted leading-relaxed">
               {subheadline}
             </p>
           </div>
@@ -437,7 +437,7 @@ export default async function NeighborhoodPage({
       </section>
 
       <section className="container-page pb-6 pt-2">
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[1.125rem] text-muted">
           <span className="text-xs uppercase tracking-[0.18em] text-muted/80">Jump to</span>
           <a href="#overview" className="hover:text-text transition">Overview</a>
           <a href="#lifestyle" className="hover:text-text transition">Lifestyle</a>
@@ -469,7 +469,7 @@ export default async function NeighborhoodPage({
                   .filter(Boolean)
                   .slice(0, 6)
                   .map((item: string, i: number) => (
-                    <div key={i} className="border-t border-border/60 pt-2 text-base text-muted leading-relaxed">
+                    <div key={i} className="border-t border-border/60 pt-2 text-[1.125rem] text-muted leading-relaxed">
                       {item}
                     </div>
                   ))}
@@ -506,23 +506,23 @@ export default async function NeighborhoodPage({
           <section id="schools" className="container-page py-12 scroll-mt-24">
             <div className="eyebrow">Schools</div>
             <h2 className="mt-2 text-3xl font-semibold">Schools & Education</h2>
-            <p className="mt-3 text-sm text-muted leading-relaxed max-w-2xl">
+            <p className="mt-3 text-[1.125rem] text-muted leading-relaxed max-w-2xl">
               School quality data is sourced from the South Carolina School Report Cards.
             </p>
             <div className="mt-6 grid gap-y-6 gap-x-10 md:grid-cols-2">
               {schools.map((school, i) => (
                 <div key={`${school.name}-${i}`} className="border-t border-border pt-4">
                   <div className="text-lg font-semibold text-text">{school.name}</div>
-                  <div className="mt-2 text-sm text-muted">
+                  <div className="mt-2 text-[1.125rem] text-muted">
                     {[school.level, school.type].filter(Boolean).join(" · ")}
                   </div>
                   {school.qualitativeNote ? (
-                    <p className="mt-2 text-sm text-muted leading-relaxed">
+                    <p className="mt-2 text-[1.125rem] text-muted leading-relaxed">
                       {school.qualitativeNote}
                     </p>
                   ) : null}
                   {(school.ratingLabel || school.ratingValue) ? (
-                    <div className="mt-2 text-sm text-text">
+                    <div className="mt-2 text-[1.125rem] text-text">
                       <span className="text-muted">SC Report Card:</span>{" "}
                       <span className="font-semibold">
                         {school.ratingLabel || school.ratingValue}
@@ -537,7 +537,7 @@ export default async function NeighborhoodPage({
                       href={school.sourceUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-2 inline-block text-sm text-muted underline underline-offset-4 hover:text-text"
+                      className="mt-2 inline-block text-[1.125rem] text-muted underline underline-offset-4 hover:text-text"
                     >
                       View official report
                     </a>
@@ -622,10 +622,10 @@ export default async function NeighborhoodPage({
             <div className="mt-6 grid gap-y-6 gap-x-10 md:grid-cols-2">
               {neighborhood.faqs.map((faq: any, i: number) => (
                 <div key={i} className="border-t border-border pt-4">
-                  <div className="text-sm font-semibold">
+                  <div className="text-[1.125rem] font-semibold">
                     {applyMarketPlaceholders(faq.question, marketPlaceholderValues)}
                   </div>
-                  <p className="mt-3 text-sm text-muted leading-relaxed">
+                  <p className="mt-3 text-[1.125rem] text-muted leading-relaxed">
                     {applyMarketPlaceholders(faq.answer, marketPlaceholderValues)}
                   </p>
                 </div>
@@ -644,7 +644,7 @@ export default async function NeighborhoodPage({
             <h2 className="mt-2 text-2xl sm:text-3xl font-semibold">
               Want a private, data‑driven neighborhood match?
             </h2>
-            <p className="mt-3 text-sm text-muted leading-relaxed max-w-2xl">
+            <p className="mt-3 text-[1.125rem] text-muted leading-relaxed max-w-2xl">
               I’ll share a tailored shortlist with current market metrics, recent
               pricing shifts, and which pockets are moving fastest.
             </p>

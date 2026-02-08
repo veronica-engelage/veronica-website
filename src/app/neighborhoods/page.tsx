@@ -117,7 +117,7 @@ export default async function NeighborhoodsIndex() {
             <h2 className="mt-2 text-2xl sm:text-3xl font-semibold">
               Want a private, data‑driven neighborhood match?
             </h2>
-            <p className="mt-3 text-sm text-muted leading-relaxed max-w-2xl">
+            <p className="mt-3 text-[1.125rem] text-muted leading-relaxed max-w-2xl">
               I’ll share a tailored shortlist with current market metrics, recent
               pricing shifts, and which pockets are moving fastest.
             </p>

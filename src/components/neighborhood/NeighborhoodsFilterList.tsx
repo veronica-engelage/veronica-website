@@ -110,7 +110,7 @@ export function NeighborhoodsFilterList({
             <h1 className="text-2xl sm:text-3xl font-semibold text-text">
               {introHeadline || "Curated neighborhood guides for Charleston & Mount Pleasant"}
             </h1>
-            <p className="mt-3 text-sm text-muted leading-relaxed max-w-2xl">
+            <p className="mt-3 text-[1.125rem] text-muted leading-relaxed max-w-2xl">
               {introText ||
                 "Explore our data-driven guide to the most sought-after communities in the Lowcountry. From the historic streets of the Peninsula to the master-planned villages of Mount Pleasant and Daniel Island, browse market stats, lifestyle insights, and current listings for every major pocket of the region."}
             </p>
@@ -143,7 +143,7 @@ export function NeighborhoodsFilterList({
                       key={`${s.kind}-${s.href}`}
                       type="button"
                       className={[
-                        "w-full text-left px-4 py-3 text-sm",
+                        "w-full text-left px-4 py-3 text-[1.125rem]",
                         i === activeIndex ? "bg-[rgb(var(--surface))]" : "hover:bg-[rgb(var(--surface))]",
                       ].join(" ")}
                       onClick={() => router.push(s.href)}
@@ -156,7 +156,7 @@ export function NeighborhoodsFilterList({
               ) : null}
             </div>
           </div>
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-5 hidden md:block">
             <ContactInlineForm
               title="Reach out to Veronica"
               description="Looking for a specific pocket in Charleston or Mount Pleasant? I’ll build a private shortlist with current pricing and notes."
@@ -182,16 +182,16 @@ export function NeighborhoodsFilterList({
                 </div>
               </div>
               <div className="lg:col-span-7">
-                <div className="text-sm text-muted">Community</div>
+                <div className="text-[1.125rem] text-muted">Community</div>
                 <h2 className="mt-2 text-3xl sm:text-4xl font-serif tracking-tight">{municipality}</h2>
-                <p className="mt-3 text-sm text-muted leading-relaxed max-w-2xl">
+                <p className="mt-3 text-[1.125rem] text-muted leading-relaxed max-w-2xl">
                   Market overviews and lifestyle insights for the most in‑demand
                   pockets in {municipality}.
                 </p>
                 <div className="mt-4">
                   <Link
                     href={`/markets/${slugify(municipality)}`}
-                    className="text-sm text-muted underline underline-offset-4 hover:text-text"
+                    className="text-[1.125rem] text-muted underline underline-offset-4 hover:text-text"
                   >
                     {municipality} Market Overview
                   </Link>
@@ -203,7 +203,7 @@ export function NeighborhoodsFilterList({
                 <div key={n._id} className="border-t border-border pt-4">
                   <div className="text-lg font-semibold text-text">{n.name}</div>
                   {n.summary ? (
-                    <p className="mt-2 text-sm text-muted line-clamp-3">
+                    <p className="mt-2 text-[1.125rem] text-muted line-clamp-5">
                       {n.summary}
                     </p>
                   ) : null}

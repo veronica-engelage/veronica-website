@@ -65,8 +65,8 @@ export default function MobileStickyCta({ phone }: Props) {
 
   return (
     <div className="md:hidden fixed inset-x-0 bottom-0 z-[60]">
-      <div className="pointer-events-none px-4 pb-[max(16px,env(safe-area-inset-bottom))]">
-        <div className="pointer-events-auto mx-auto max-w-[1280px] rounded-2xl border border-border bg-bg/92 backdrop-blur shadow-lg p-3">
+      <div className="pointer-events-none px-4 pb-[env(safe-area-inset-bottom)]">
+        <div className="pointer-events-auto mx-auto max-w-[1280px] rounded-2xl border border-border bg-bg/92 backdrop-blur shadow-lg p-2">
           <div className="grid grid-cols-2 gap-3">
             <a
               className="btn btn-primary w-full"

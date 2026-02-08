@@ -269,7 +269,7 @@ export default async function MarketPage({
             <div key={n._id} className="border-t border-border pt-4">
               <div className="text-lg font-semibold text-text">{n.name}</div>
               {n.summary ? (
-                <p className="mt-2 text-sm text-muted line-clamp-3">{n.summary}</p>
+                <p className="mt-2 text-[1.125rem] text-muted line-clamp-3">{n.summary}</p>
               ) : null}
               <div className="mt-3">
                 <Link href={`/neighborhoods/${n.slug}`} className="btn-tertiary inline-flex">
@@ -288,7 +288,7 @@ export default async function MarketPage({
             <h2 className="mt-2 text-2xl sm:text-3xl font-semibold">
               Want a private, data‑driven neighborhood match?
             </h2>
-            <p className="mt-3 text-sm text-muted leading-relaxed max-w-2xl">
+            <p className="mt-3 text-[1.125rem] text-muted leading-relaxed max-w-2xl">
               I’ll share a tailored shortlist with current market metrics, recent
               pricing shifts, and which pockets are moving fastest.
             </p>

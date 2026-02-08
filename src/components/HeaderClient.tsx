@@ -204,7 +204,7 @@ export default function HeaderClient({
         <div
           className={[
             "relative transition-all duration-300",
-            scrolled ? "h-[76px]" : "h-[140px] sm:h-[156px]",
+            scrolled ? "h-[60px] sm:h-[64px]" : "h-[140px] sm:h-[156px]",
           ].join(" ")}
         >
           {/* CENTER BRAND */}
