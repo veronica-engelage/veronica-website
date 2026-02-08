@@ -91,6 +91,13 @@ export const pageBySlugQuery = /* groq */ `
           }
         }
       }
+    },
+
+    // IDX WIDGET
+    _type == "sectionIdxWidget" => {
+      title,
+      widgetId,
+      widgetHost
     }
   }
 `;

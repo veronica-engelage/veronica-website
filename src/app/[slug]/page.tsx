@@ -259,6 +259,12 @@ const query = `*[_type == "page" && slug.current == $slug][0]{
         summary,
         heroImage->{ alt, image{asset->{url}} }
       }
+    },
+
+    _type == "sectionIdxWidget" => {
+      title,
+      widgetId,
+      widgetHost
     }
   }
 }`;

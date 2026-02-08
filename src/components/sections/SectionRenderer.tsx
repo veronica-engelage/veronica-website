@@ -8,6 +8,7 @@ import { CtaSection } from "@/components/sections/CtaSection";
 import { SnippetSection } from "@/components/sections/SnippetSection";
 import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
 import { CommunityCarouselSection } from "@/components/sections/CommunityCarouselSection";
+import { IdxWidgetSection } from "@/components/sections/IdxWidgetSection";
 
 
 type SectionRendererProps = {
@@ -74,9 +75,13 @@ export function SectionRenderer({ sections, phone }: SectionRendererProps) {
             console.log("[SectionRenderer] → Rendering CommunityCarouselSection");
             return <CommunityCarouselSection key={section._key} {...section} />;
 
-            case "sectionTestimonials":
-  console.log("[SectionRenderer] → Rendering TestimonialsSection");
-  return <TestimonialsSection key={section._key} {...section} />;
+          case "sectionTestimonials":
+            console.log("[SectionRenderer] → Rendering TestimonialsSection");
+            return <TestimonialsSection key={section._key} {...section} />;
+
+          case "sectionIdxWidget":
+            console.log("[SectionRenderer] → Rendering IdxWidgetSection");
+            return <IdxWidgetSection key={section._key} {...section} />;
 
           default:
             console.warn(
