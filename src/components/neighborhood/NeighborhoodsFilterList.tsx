@@ -61,10 +61,23 @@ export function NeighborhoodsFilterList({
     }, {});
   }, [filtered]);
 
-  const municipalities = useMemo(
-    () => Object.keys(groups).sort((a, b) => a.localeCompare(b)),
-    [groups]
-  );
+  const municipalities = useMemo(() => {
+    const preferredOrder = [
+      "Mount Pleasant",
+      "Charleston Peninsula",
+      "Daniel Island",
+      "Isle of Palms",
+      "Sullivan's Island",
+    ];
+    return Object.keys(groups).sort((a, b) => {
+      const aIndex = preferredOrder.indexOf(a);
+      const bIndex = preferredOrder.indexOf(b);
+      const aRank = aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex;
+      const bRank = bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex;
+      if (aRank !== bRank) return aRank - bRank;
+      return a.localeCompare(b);
+    });
+  }, [groups]);
 
   const suggestions = useMemo(() => {
     if (!normalized) return [];
