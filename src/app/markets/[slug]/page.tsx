@@ -183,6 +183,8 @@ export default async function MarketPage({
   const { slug } = await params;
   const market = await sanityClient.fetch(marketQuery, { slug });
   if (!market) return notFound();
+  const settings = await getSiteSettings().catch(() => null);
+  const siteUrl = (settings?.siteUrl || "https://veronicachs.com").replace(/\/+$/, "");
 
   const municipality = market.municipality;
   const inMarket = await sanityClient.fetch<Neighborhood[]>(neighborhoodQuery, { municipality });
@@ -204,8 +206,53 @@ export default async function MarketPage({
   const series = weightedSeries(stats, zipWeights).slice(-12);
   const latest = stats[stats.length - 1];
 
+  const breadcrumbItems = [
+    { name: "Home", url: `${siteUrl}/`, href: "/" },
+    { name: "Markets", url: `${siteUrl}/markets`, href: "/markets" },
+    {
+      name: market.name || municipality,
+      url: `${siteUrl}/markets/${market.slug}`,
+      href: `/markets/${market.slug}`,
+    },
+  ];
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: breadcrumbItems.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+
   return (
     <main>
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
+      <nav aria-label="Breadcrumb" className="container-page pt-6">
+        <ol className="m-0 flex list-none flex-wrap items-center gap-2 p-0 text-[11px] uppercase tracking-[0.18em] text-muted">
+          <li>
+            <Link href={breadcrumbItems[0].href} className="hover:text-text">
+              {breadcrumbItems[0].name}
+            </Link>
+          </li>
+          <li className="opacity-60">›</li>
+          <li>
+            <Link href={breadcrumbItems[1].href} className="hover:text-text">
+              {breadcrumbItems[1].name}
+            </Link>
+          </li>
+          <li className="opacity-60">›</li>
+          <li className="text-text">{breadcrumbItems[2].name}</li>
+        </ol>
+      </nav>
+
       <HeroSection
         eyebrow="Community"
         headline={market.heroHeadline || `${municipality} Market`}

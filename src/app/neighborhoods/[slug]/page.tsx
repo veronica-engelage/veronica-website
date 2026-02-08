@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { Metadata } from "next";
 import { groq } from "next-sanity";
 import { notFound } from "next/navigation";
@@ -62,6 +63,8 @@ const neighborhoodQuery = groq`
 
 const marketHeroQuery = groq`
   *[_type == "market" && municipality == $municipality][0]{
+    name,
+    "slug": slug.current,
     heroImage->{
       title,
       alt,
@@ -126,6 +129,13 @@ type MarketPlaceholderValues = {
   activeListingCount: string;
   medianDaysOnMarket: string;
 };
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "");
+}
 
 function weightedSeries(stats: MarketStat[], mappings: ZipMapping[]) {
   if (!stats.length || !mappings.length) return [];
@@ -259,7 +269,7 @@ export async function generateMetadata({
   if (!neighborhood) return {};
 
   const settings = await getSiteSettings().catch(() => null);
-  const siteUrl = settings?.siteUrl || "https://veronicachs.com";
+  const siteUrl = (settings?.siteUrl || "https://veronicachs.com").replace(/\/+$/, "");
   const canonical = `${siteUrl}/neighborhoods/${neighborhood.slug}`;
 
   const title =
@@ -339,6 +349,29 @@ export default async function NeighborhoodPage({
     neighborhood.heroSubheadline ||
     `A warm, factual guide to ${neighborhood.name} with market insights curated by Veronica Engelage.`;
 
+  const marketName = marketHero?.name || neighborhood?.municipality || "Market";
+  const marketSlug = marketHero?.slug || slugify(marketName);
+  const breadcrumbItems = [
+    { name: "Home", url: `${siteUrl}/`, href: "/" },
+    { name: marketName, url: `${siteUrl}/markets/${marketSlug}`, href: `/markets/${marketSlug}` },
+    {
+      name: neighborhood.name,
+      url: `${siteUrl}/neighborhoods/${neighborhood.slug}`,
+      href: `/neighborhoods/${neighborhood.slug}`,
+    },
+  ];
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: breadcrumbItems.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+
   const mapCenter =
     neighborhood?.map?.centerLat && neighborhood?.map?.centerLng
       ? { lat: neighborhood.map.centerLat, lng: neighborhood.map.centerLng }
@@ -371,6 +404,24 @@ export default async function NeighborhoodPage({
 
   return (
     <main>
+      <nav aria-label="Breadcrumb" className="container-page pt-6">
+        <ol className="m-0 flex list-none flex-wrap items-center gap-2 p-0 text-[11px] uppercase tracking-[0.18em] text-muted">
+          <li>
+            <Link href={breadcrumbItems[0].href} className="hover:text-text">
+              {breadcrumbItems[0].name}
+            </Link>
+          </li>
+          <li className="opacity-60">›</li>
+          <li>
+            <Link href={breadcrumbItems[1].href} className="hover:text-text">
+              {breadcrumbItems[1].name}
+            </Link>
+          </li>
+          <li className="opacity-60">›</li>
+          <li className="text-text">{breadcrumbItems[2].name}</li>
+        </ol>
+      </nav>
+
       <section className="container-page py-10 sm:py-14">
         <div className="grid gap-10 lg:grid-cols-12 items-center">
           <div className="lg:col-span-6">
@@ -621,6 +672,11 @@ export default async function NeighborhoodPage({
         type="application/ld+json"
         // @ts-ignore
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
     </main>
   );
