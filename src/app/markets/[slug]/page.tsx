@@ -96,13 +96,14 @@ export async function generateMetadata({
   if (!market) return {};
 
   const settings = await getSiteSettings().catch(() => null);
-  const siteUrl = settings?.siteUrl || "https://veronicachs.com";
-  const canonical = `${siteUrl}/markets/${market.slug}`;
+  const siteUrl = (settings?.siteUrl || "https://veronicachs.com").replace(/\/+$/, "");
+  const canonicalBase = siteUrl.replace("https://veronicachs.com", "https://www.veronicachs.com");
+  const canonical = `${canonicalBase}/markets/${market.slug}`;
 
   const title = `${market.name} Real Estate Market | Veronica Engelage`;
   const description =
     market.summary ||
-    `Explore ${market.name} real estate market trends, pricing, and community insights.`;
+    `Explore ${market.name} real estate with this curated guide to market stats and lifestyle insights.`;
 
   return {
     title,

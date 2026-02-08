@@ -270,15 +270,17 @@ export async function generateMetadata({
 
   const settings = await getSiteSettings().catch(() => null);
   const siteUrl = (settings?.siteUrl || "https://veronicachs.com").replace(/\/+$/, "");
-  const canonical = `${siteUrl}/neighborhoods/${neighborhood.slug}`;
+  const canonicalBase = siteUrl.replace("https://veronicachs.com", "https://www.veronicachs.com");
+  const canonical = `${canonicalBase}/neighborhoods/${neighborhood.slug}`;
 
+  const municipality = neighborhood.municipality || "Charleston, SC";
   const title =
     neighborhood?.seo?.title ||
-    formatNeighborhoodTitle(neighborhood.name, neighborhood.municipality);
+    `${neighborhood.name} Real Estate & Homes for Sale | ${municipality}`;
   const description =
     neighborhood?.seo?.description ||
     neighborhood.summary ||
-    `Explore ${neighborhood.name} real estate, lifestyle, and market trends in ${neighborhood.municipality || "Charleston, SC"}.`;
+    `A warm, factual guide to ${neighborhood.name} real estate, curated for buyers and sellers in ${municipality}. Explore market stats, lifestyle insights, and homes for sale.`;
 
   return {
     title,
