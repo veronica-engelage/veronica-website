@@ -63,11 +63,11 @@ type PageSettings = {
 export default async function MarketsIndex() {
   const markets = await sanityClient.fetch<Market[]>(query);
   const settings = await sanityClient.fetch<PageSettings | null>(settingsQuery);
-
   return (
     <main>
       <HeroSection
         headline={settings?.heroHeadline || "Markets"}
+        headlineAs="h2"
         layout="overlay"
         variant="standard"
         media={{
@@ -82,9 +82,9 @@ export default async function MarketsIndex() {
       <section className="container-page pt-8">
         <div className="grid gap-6 lg:grid-cols-12 items-start">
           <div className="lg:col-span-7">
-            <h2 className="text-2xl sm:text-3xl font-semibold text-text">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-text">
               {settings?.introHeadline || "Market overviews with neighborhood‑level clarity."}
-            </h2>
+            </h1>
             <p className="mt-3 text-sm text-muted leading-relaxed max-w-2xl">
               {settings?.introText ||
                 "Explore Charleston‑area markets with curated neighborhood context, current pricing signals, and an editorial look at each community."}

@@ -193,7 +193,7 @@ export function HeroSection(props: HeroProps) {
               <div className="absolute inset-x-0 bottom-0 hidden dark:block h-[40%] bg-gradient-to-t from-bg/88 to-transparent" />
 
               {/* Cutout */}
-              <div className="absolute inset-y-0 left-0 w-[400px] sm:w-[440px] pointer-events-none">
+              <div className="absolute inset-y-0 left-[-10%] sm:left-0 w-[400px] sm:w-[440px] pointer-events-none">
                 <div className="relative h-full w-full flex items-end">
                   <div className="relative w-full h-[min(420px,100%)] translate-y-2">
                     <Image

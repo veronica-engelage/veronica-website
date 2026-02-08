@@ -91,6 +91,7 @@ export default async function NeighborhoodsIndex() {
     <main>
       <HeroSection
         headline={settings?.heroHeadline || "Neighborhoods"}
+        headlineAs="h2"
         layout="overlay"
         variant="standard"
         media={{

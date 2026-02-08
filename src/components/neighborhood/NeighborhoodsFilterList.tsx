@@ -107,12 +107,12 @@ export function NeighborhoodsFilterList({
       <section className="container-page pt-8">
         <div className="grid gap-6 lg:grid-cols-12 items-start">
           <div className="lg:col-span-7">
-            <h2 className="text-2xl sm:text-3xl font-semibold text-text">
-              {introHeadline || "Curated neighborhood guides with market clarity."}
-            </h2>
+            <h1 className="text-2xl sm:text-3xl font-semibold text-text">
+              {introHeadline || "Curated neighborhood guides for Charleston & Mount Pleasant"}
+            </h1>
             <p className="mt-3 text-sm text-muted leading-relaxed max-w-2xl">
               {introText ||
-                "Curated, data‑rich neighborhood guides with market snapshots, local context, and market‑savvy guidance."}
+                "Explore our data-driven guide to the most sought-after communities in the Lowcountry. From the historic streets of the Peninsula to the master-planned villages of Mount Pleasant and Daniel Island, browse market stats, lifestyle insights, and current listings for every major pocket of the region."}
             </p>
             <div className="relative mt-12 max-w-xl">
               <div className="text-xs text-muted">Search communities</div>

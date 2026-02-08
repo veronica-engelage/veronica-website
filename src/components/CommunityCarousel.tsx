@@ -94,12 +94,13 @@ export function CommunityCarousel({
       <div className="mt-6 -mx-5 sm:-mx-8">
         <div
           ref={scrollerRef}
-          className="flex gap-0 overflow-x-auto px-5 pb-2 sm:px-8 snap-x snap-mandatory scroll-smooth scrollbar-none"
+          className="flex gap-4 lg:gap-0 overflow-x-auto px-5 pb-2 sm:px-8 snap-x snap-mandatory scroll-smooth scrollbar-none"
+          style={{ scrollPaddingLeft: "1.25rem", scrollPaddingRight: "1.25rem" }}
         >
           {pages.map((page, pageIdx) => (
             <div
               key={`page-${pageIdx}`}
-              className="snap-start flex-shrink-0 w-full grid grid-cols-1 lg:grid-cols-3"
+              className="snap-center flex-shrink-0 w-[90%] sm:w-full grid grid-cols-1 lg:grid-cols-3"
               style={{ scrollSnapStop: "always" }}
             >
               {page.map((item, idx) => (
@@ -124,11 +125,11 @@ export function CommunityCarousel({
                   <div className="p-5">
                     <div className="text-lg font-semibold">{item.name}</div>
                     {item.summary ? (
-                      <p className="mt-2 text-sm text-muted line-clamp-3 min-h-[3.6rem]">
+                      <p className="mt-2 text-sm text-muted line-clamp-5 min-h-[4.6rem]">
                         {item.summary}
                       </p>
                     ) : (
-                      <div className="mt-2 min-h-[3.6rem]" />
+                      <div className="mt-2 min-h-[4.6rem]" />
                     )}
                   </div>
                 </Link>
