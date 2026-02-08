@@ -8,6 +8,7 @@ export const revalidate = 3600;
 type SlugEntry = { slug: string; _updatedAt?: string };
 
 const excludedPageSlugs = [
+  "home",
   "test",
   "markets",
   "neighborhoods",
@@ -64,14 +65,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  const marketRoutes: MetadataRoute.Sitemap = markets.map((market) => ({
+  const dedupeBySlug = (items: SlugEntry[]) => {
+    const map = new Map<string, SlugEntry>();
+    for (const item of items) {
+      if (!item?.slug) continue;
+      const existing = map.get(item.slug);
+      if (!existing) {
+        map.set(item.slug, item);
+        continue;
+      }
+      const existingTime = existing._updatedAt ? Date.parse(existing._updatedAt) : 0;
+      const nextTime = item._updatedAt ? Date.parse(item._updatedAt) : 0;
+      if (nextTime > existingTime) {
+        map.set(item.slug, item);
+      }
+    }
+    return Array.from(map.values());
+  };
+
+  const marketRoutes: MetadataRoute.Sitemap = dedupeBySlug(markets).map((market) => ({
     url: `${siteUrl}/markets/${market.slug}`,
     lastModified: market._updatedAt ? new Date(market._updatedAt) : new Date(),
     changeFrequency: "weekly",
     priority: 0.8,
   }));
 
-  const neighborhoodRoutes: MetadataRoute.Sitemap = neighborhoods.map((neighborhood) => ({
+  const neighborhoodRoutes: MetadataRoute.Sitemap = dedupeBySlug(neighborhoods).map((neighborhood) => ({
     url: `${siteUrl}/neighborhoods/${neighborhood.slug}`,
     lastModified: neighborhood._updatedAt ? new Date(neighborhood._updatedAt) : new Date(),
     changeFrequency: "weekly",
