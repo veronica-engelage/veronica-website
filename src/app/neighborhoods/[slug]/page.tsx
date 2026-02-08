@@ -1,9 +1,9 @@
-import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { groq } from "next-sanity";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 import { sanityClient } from "@/sanity/client";
 import PortableText from "@/components/PortableText";
 import { MarketStatsSection } from "@/components/neighborhood/MarketStatsSection";
@@ -305,7 +305,8 @@ export default async function NeighborhoodPage({
   const neighborhood = await sanityClient.fetch(neighborhoodQuery, { slug });
   if (!neighborhood) return notFound();
   const settings = await getSiteSettings().catch(() => null);
-  const siteUrl = settings?.siteUrl || "https://veronicachs.com";
+  const siteUrl = (settings?.siteUrl || "https://veronicachs.com").replace(/\/+$/, "");
+  const canonicalBase = siteUrl.replace("https://veronicachs.com", "https://www.veronicachs.com");
 
   const zipMappings: ZipMapping[] = Array.isArray(neighborhood.zipMappings)
     ? neighborhood.zipMappings.filter((z: ZipMapping) => z?.zip)
@@ -355,11 +356,11 @@ export default async function NeighborhoodPage({
   const marketName = marketHero?.name || neighborhood?.municipality || "Market";
   const marketSlug = marketHero?.slug || slugify(marketName);
   const breadcrumbItems = [
-    { name: "Home", url: `${siteUrl}/`, href: "/" },
-    { name: marketName, url: `${siteUrl}/markets/${marketSlug}`, href: `/markets/${marketSlug}` },
+    { name: "Home", url: `${canonicalBase}/`, href: "/" },
+    { name: marketName, url: `${canonicalBase}/markets/${marketSlug}`, href: `/markets/${marketSlug}` },
     {
       name: neighborhood.name,
-      url: `${siteUrl}/neighborhoods/${neighborhood.slug}`,
+      url: `${canonicalBase}/neighborhoods/${neighborhood.slug}`,
       href: `/neighborhoods/${neighborhood.slug}`,
     },
   ];
@@ -384,7 +385,7 @@ export default async function NeighborhoodPage({
     "@type": "Place",
     name: neighborhood.name,
     description: neighborhood.summary || subheadline,
-    url: `${siteUrl}/neighborhoods/${neighborhood.slug}`,
+    url: `${canonicalBase}/neighborhoods/${neighborhood.slug}`,
     address: {
       "@type": "PostalAddress",
       addressLocality: neighborhood.municipality || "Mount Pleasant",
@@ -406,18 +407,20 @@ export default async function NeighborhoodPage({
 
   return (
     <main>
-      <Head>
-        <script
-          type="application/ld+json"
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(placeSchema) }}
-        />
-      </Head>
+      <Script
+        id="neighborhood-breadcrumb-schema"
+        type="application/ld+json"
+        strategy="beforeInteractive"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <Script
+        id="neighborhood-place-schema"
+        type="application/ld+json"
+        strategy="beforeInteractive"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(placeSchema) }}
+      />
 
       <nav aria-label="Breadcrumb" className="container-page pt-6">
         <ol className="m-0 flex list-none flex-wrap items-center gap-2 p-0 text-[11px] uppercase tracking-[0.18em] text-muted">

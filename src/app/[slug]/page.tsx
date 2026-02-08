@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Script from "next/script";
 import { sanityClient } from "@/sanity/client";
 import PortableText from "@/components/PortableText";
 import { SectionRenderer } from "@/components/sections/SectionRenderer";
@@ -294,31 +295,85 @@ export default async function GenericPage({ params }: GenericPageProps) {
   // Fetch site settings phone for TextCtaButton fallback in hero
   const settings = await getSiteSettings().catch(() => null);
   const phone = normalizeE164(settings?.phone) || null;
+  const siteUrl = (settings?.siteUrl || "https://veronicachs.com").replace(/\/+$/, "");
+  const canonicalBase = siteUrl.replace("https://veronicachs.com", "https://www.veronicachs.com");
+  const brokerageName = settings?.brokerageName || "Carolina One Real Estate";
+
+  const aboutSchema =
+    slug === "about"
+      ? {
+          "@context": "https://schema.org",
+          "@type": "Person",
+          name: settings?.agentName || "Veronica Engelage",
+          jobTitle: "Real Estate Agent",
+          affiliation: {
+            "@type": "Organization",
+            name: brokerageName,
+          },
+          url: `${canonicalBase}/about`,
+          knowsAbout: [
+            "Charleston Real Estate",
+            "Mount Pleasant Neighborhoods",
+            "Luxury Home Sales",
+          ],
+          worksFor: {
+            "@type": "RealEstateAgent",
+            name: brokerageName,
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: "Mount Pleasant",
+              addressRegion: "SC",
+            },
+          },
+        }
+      : null;
 
   const hasSections = Array.isArray(page.sections) && page.sections.length > 0;
 
   if (hasSections) {
     return (
-      <main>
-        <SectionRenderer sections={page.sections!} phone={phone} />
-      </main>
+      <>
+        {aboutSchema ? (
+          <Script
+            id="about-person-schema"
+            type="application/ld+json"
+            strategy="beforeInteractive"
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutSchema) }}
+          />
+        ) : null}
+        <main>
+          <SectionRenderer sections={page.sections!} phone={phone} />
+        </main>
+      </>
     );
   }
 
   // Legacy fallback
   return (
-    <main>
-      <section className="container-page pt-28 pb-24">
-        {page.title ? (
-          <h1 className="font-serif text-4xl sm:text-5xl tracking-[-0.015em] text-text">
-            {page.title}
-          </h1>
-        ) : null}
+    <>
+      {aboutSchema ? (
+        <Script
+          id="about-person-schema"
+          type="application/ld+json"
+          strategy="beforeInteractive"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutSchema) }}
+        />
+      ) : null}
+      <main>
+        <section className="container-page pt-28 pb-24">
+          {page.title ? (
+            <h1 className="font-serif text-4xl sm:text-5xl tracking-[-0.015em] text-text">
+              {page.title}
+            </h1>
+          ) : null}
 
-        <div className="mt-10 max-w-3xl">
-          {page.content ? <PortableText value={page.content} /> : null}
-        </div>
-      </section>
-    </main>
+          <div className="mt-10 max-w-3xl">
+            {page.content ? <PortableText value={page.content} /> : null}
+          </div>
+        </section>
+      </main>
+    </>
   );
 }

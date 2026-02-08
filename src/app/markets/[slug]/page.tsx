@@ -1,9 +1,9 @@
-import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { groq } from "next-sanity";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 import { sanityClient } from "@/sanity/client";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { MarketStatsSection } from "@/components/neighborhood/MarketStatsSection";
@@ -187,6 +187,7 @@ export default async function MarketPage({
   if (!market) return notFound();
   const settings = await getSiteSettings().catch(() => null);
   const siteUrl = (settings?.siteUrl || "https://veronicachs.com").replace(/\/+$/, "");
+  const canonicalBase = siteUrl.replace("https://veronicachs.com", "https://www.veronicachs.com");
 
   const municipality = market.municipality;
   const inMarket = await sanityClient.fetch<Neighborhood[]>(neighborhoodQuery, { municipality });
@@ -209,11 +210,11 @@ export default async function MarketPage({
   const latest = stats[stats.length - 1];
 
   const breadcrumbItems = [
-    { name: "Home", url: `${siteUrl}/`, href: "/" },
-    { name: "Markets", url: `${siteUrl}/markets`, href: "/markets" },
+    { name: "Home", url: `${canonicalBase}/`, href: "/" },
+    { name: "Markets", url: `${canonicalBase}/markets`, href: "/markets" },
     {
       name: market.name || municipality,
-      url: `${siteUrl}/markets/${market.slug}`,
+      url: `${canonicalBase}/markets/${market.slug}`,
       href: `/markets/${market.slug}`,
     },
   ];
@@ -230,13 +231,13 @@ export default async function MarketPage({
 
   return (
     <main>
-      <Head>
-        <script
-          type="application/ld+json"
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-        />
-      </Head>
+      <Script
+        id="market-breadcrumb-schema"
+        type="application/ld+json"
+        strategy="beforeInteractive"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
 
       <nav aria-label="Breadcrumb" className="container-page pt-6">
         <ol className="m-0 flex list-none flex-wrap items-center gap-2 p-0 text-[11px] uppercase tracking-[0.18em] text-muted">
