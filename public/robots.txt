@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin
+Disallow: /login
+Disallow: /preview
+Disallow: /idx/
+Disallow: /search?
+Disallow: /test
+
+Sitemap: https://veronicachs.com/sitemap.xml
