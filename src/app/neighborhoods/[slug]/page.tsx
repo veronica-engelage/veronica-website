@@ -271,7 +271,7 @@ export async function generateMetadata({
 
   const settings = await getSiteSettings().catch(() => null);
   const siteUrl = (settings?.siteUrl || "https://veronicachs.com").replace(/\/+$/, "");
-  const canonicalBase = siteUrl.replace("https://veronicachs.com", "https://www.veronicachs.com");
+  const canonicalBase = siteUrl.replace(/^https?:\/\/www\./, "https://");
   const canonical = `${canonicalBase}/neighborhoods/${neighborhood.slug}`;
 
   const municipality = neighborhood.municipality || "Charleston, SC";
@@ -306,7 +306,7 @@ export default async function NeighborhoodPage({
   if (!neighborhood) return notFound();
   const settings = await getSiteSettings().catch(() => null);
   const siteUrl = (settings?.siteUrl || "https://veronicachs.com").replace(/\/+$/, "");
-  const canonicalBase = siteUrl.replace("https://veronicachs.com", "https://www.veronicachs.com");
+  const canonicalBase = siteUrl.replace(/^https?:\/\/www\./, "https://");
 
   const zipMappings: ZipMapping[] = Array.isArray(neighborhood.zipMappings)
     ? neighborhood.zipMappings.filter((z: ZipMapping) => z?.zip)

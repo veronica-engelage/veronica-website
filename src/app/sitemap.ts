@@ -48,7 +48,7 @@ const neighborhoodSlugsQuery = groq`
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const settings = await getSiteSettings().catch(() => null);
   const siteUrl = (settings?.siteUrl || "https://veronicachs.com").replace(/\/+$/, "");
-  const canonicalBase = siteUrl.replace("https://www.veronicachs.com", "https://veronicachs.com");
+  const canonicalBase = siteUrl.replace(/^https?:\/\/www\./, "https://");
 
   const [pages, markets, neighborhoods] = await Promise.all([
     sanityClient.fetch<SlugEntry[]>(pageSlugsQuery, { excludedPageSlugs }),

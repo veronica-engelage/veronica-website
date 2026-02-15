@@ -272,7 +272,7 @@ export default async function HomePage() {
   const phone = normalizeE164(settings?.phone) || null;
 
   const siteUrl = (settings?.siteUrl || "https://veronicachs.com").replace(/\/+$/, "");
-  const canonicalBase = siteUrl.replace("https://veronicachs.com", "https://www.veronicachs.com");
+  const canonicalBase = siteUrl.replace(/^https?:\/\/www\./, "https://");
   const agentName = settings?.agentName || "Veronica Engelage";
   const brokerageName = settings?.brokerageName || "Carolina One Real Estate";
   const telephone = settings?.phone || "+18548372944";
@@ -282,7 +282,7 @@ export default async function HomePage() {
     "@context": "https://schema.org",
     "@type": "RealEstateAgent",
     name: agentName,
-    image: "https://www.veronicachs.com/_next/image?url=%2Fimages%2Fveronica-profile.jpg&w=1200&q=75",
+    image: "https://veronicachs.com/_next/image?url=%2Fimages%2Fveronica-profile.jpg&w=1200&q=75",
     description:
       "Veronica Engelage offers discreet, data-driven real estate guidance in Charleston & Mount Pleasant. Specializing in luxury listings and neighborhood insights.",
     url: `${canonicalBase}/`,

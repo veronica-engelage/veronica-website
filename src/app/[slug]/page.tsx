@@ -296,7 +296,7 @@ export default async function GenericPage({ params }: GenericPageProps) {
   const settings = await getSiteSettings().catch(() => null);
   const phone = normalizeE164(settings?.phone) || null;
   const siteUrl = (settings?.siteUrl || "https://veronicachs.com").replace(/\/+$/, "");
-  const canonicalBase = siteUrl.replace("https://veronicachs.com", "https://www.veronicachs.com");
+  const canonicalBase = siteUrl.replace(/^https?:\/\/www\./, "https://");
   const brokerageName = settings?.brokerageName || "Carolina One Real Estate";
 
   const aboutSchema =

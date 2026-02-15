@@ -98,7 +98,7 @@ export async function generateMetadata({
 
   const settings = await getSiteSettings().catch(() => null);
   const siteUrl = (settings?.siteUrl || "https://veronicachs.com").replace(/\/+$/, "");
-  const canonicalBase = siteUrl.replace("https://veronicachs.com", "https://www.veronicachs.com");
+  const canonicalBase = siteUrl.replace(/^https?:\/\/www\./, "https://");
   const canonical = `${canonicalBase}/markets/${market.slug}`;
 
   const title = `${market.name} Real Estate Market | Veronica Engelage`;
@@ -187,7 +187,7 @@ export default async function MarketPage({
   if (!market) return notFound();
   const settings = await getSiteSettings().catch(() => null);
   const siteUrl = (settings?.siteUrl || "https://veronicachs.com").replace(/\/+$/, "");
-  const canonicalBase = siteUrl.replace("https://veronicachs.com", "https://www.veronicachs.com");
+  const canonicalBase = siteUrl.replace(/^https?:\/\/www\./, "https://");
 
   const municipality = market.municipality;
   const inMarket = await sanityClient.fetch<Neighborhood[]>(neighborhoodQuery, { municipality });

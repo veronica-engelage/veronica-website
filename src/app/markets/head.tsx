@@ -24,7 +24,7 @@ export default async function Head() {
   ]);
 
   const siteUrl = (siteSettings?.siteUrl || "https://veronicachs.com").replace(/\/+$/, "");
-  const canonicalBase = siteUrl.replace("https://veronicachs.com", "https://www.veronicachs.com");
+  const canonicalBase = siteUrl.replace(/^https?:\/\/www\./, "https://");
 
   const collectionSchema = {
     "@context": "https://schema.org",
