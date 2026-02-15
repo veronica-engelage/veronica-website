@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   title: "Veronica Engelage | Charleston & Mount Pleasant Realtor",
   description:
     "Veronica Engelage offers data-driven real estate guidance in Charleston & Mount Pleasant. Explore luxury listings, neighborhoods, and market insights.",
+  alternates: {
+    canonical: "/",
+  },
 };
 
 const homeQuery = groq`
