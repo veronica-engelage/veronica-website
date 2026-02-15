@@ -48,6 +48,7 @@ const neighborhoodSlugsQuery = groq`
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const settings = await getSiteSettings().catch(() => null);
   const siteUrl = (settings?.siteUrl || "https://veronicachs.com").replace(/\/+$/, "");
+  const canonicalBase = siteUrl.replace("https://www.veronicachs.com", "https://veronicachs.com");
 
   const [pages, markets, neighborhoods] = await Promise.all([
     sanityClient.fetch<SlugEntry[]>(pageSlugsQuery, { excludedPageSlugs }),
@@ -56,13 +57,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: `${siteUrl}/`, lastModified: new Date(), changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteUrl}/markets`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
-    { url: `${siteUrl}/neighborhoods`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
+    { url: `${canonicalBase}/`, lastModified: new Date(), changeFrequency: "daily", priority: 1.0 },
+    { url: `${canonicalBase}/markets`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
+    { url: `${canonicalBase}/neighborhoods`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
   ];
 
   const pageRoutes: MetadataRoute.Sitemap = pages.map((page) => ({
-    url: `${siteUrl}/${page.slug}`,
+    url: `${canonicalBase}/${page.slug}`,
     lastModified: page._updatedAt ? new Date(page._updatedAt) : new Date(),
     changeFrequency: "monthly",
     priority: 0.6,
@@ -71,7 +72,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const normalizedPageRoutes = pageRoutes
     .map((route) => {
       const url = route.url.replace(/\/{2,}/g, "/").replace("https:/", "https://");
-      const path = url.replace(siteUrl, "");
+      const path = url.replace(canonicalBase, "");
       return { ...route, url, path };
     })
     .filter((route) => {
@@ -101,14 +102,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   };
 
   const marketRoutes: MetadataRoute.Sitemap = dedupeBySlug(markets).map((market) => ({
-    url: `${siteUrl}/markets/${market.slug}`,
+    url: `${canonicalBase}/markets/${market.slug}`,
     lastModified: market._updatedAt ? new Date(market._updatedAt) : new Date(),
     changeFrequency: "weekly",
     priority: 0.8,
   }));
 
   const neighborhoodRoutes: MetadataRoute.Sitemap = dedupeBySlug(neighborhoods).map((neighborhood) => ({
-    url: `${siteUrl}/neighborhoods/${neighborhood.slug}`,
+    url: `${canonicalBase}/neighborhoods/${neighborhood.slug}`,
     lastModified: neighborhood._updatedAt ? new Date(neighborhood._updatedAt) : new Date(),
     changeFrequency: "weekly",
     priority: 0.8,
