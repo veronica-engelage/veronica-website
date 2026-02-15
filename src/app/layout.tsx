@@ -20,8 +20,12 @@ const raleway = Raleway({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://veronicachs.com"),
   title: "Veronica Engelage",
   description: "Charleston & Mount Pleasant Real Estate",
+  alternates: {
+    canonical: "/",
+  },
   icons: {
     icon: [
       { url: "/favicon.ico" },
