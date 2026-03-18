@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MobileStickyCta from "@/components/MobileStickyCta";
 import { Lora, Raleway } from "next/font/google";
 import AnalyticsPageView from "@/components/analytics/AnalyticsPageView";
+import ThemeInit from "@/components/ThemeInit";
 
 
 const lora = Lora({
@@ -37,18 +39,22 @@ export const metadata: Metadata = {
   manifest: "/site.webmanifest",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // For now: keep your existing hardcoded phone source so this is truly drop-in.
   // Later: fetch from Sanity in a server layout and pass it down.
   const phone = "854 837 2944";
+  const cookieStore = await cookies();
+  const themeCookie = cookieStore.get("theme")?.value;
+  const themeClass = themeCookie === "dark" || themeCookie === "light" ? themeCookie : "";
 
   return (
     <html
       lang="en"
-      className={`${lora.variable} ${raleway.variable}`}
+      className={`${lora.variable} ${raleway.variable} ${themeClass}`.trim()}
       suppressHydrationWarning
     >
       <body className="min-h-screen bg-bg text-text font-sans antialiased">
+        <ThemeInit />
         <Header />
 
         {/* Add bottom padding so the sticky bar doesn't cover content */}

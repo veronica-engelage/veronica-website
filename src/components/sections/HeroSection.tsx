@@ -209,9 +209,9 @@ export function HeroSection(props: HeroProps) {
               />
 
               {/* Overlays */}
-              <div className="absolute inset-0 bg-gradient-to-r from-bg/70 via-bg/35 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-r from-bg/35 via-bg/35 to-bg/35" />
               <div className="absolute inset-x-0 bottom-0 h-[40%] bg-gradient-to-t from-bg/82 to-transparent" />
-              <div className="absolute inset-0 hidden dark:block bg-gradient-to-r from-bg/78 via-bg/40 to-transparent" />
+              <div className="absolute inset-0 hidden dark:block bg-gradient-to-r from-bg/35 via-bg/35 to-bg/35" />
               <div className="absolute inset-x-0 bottom-0 hidden dark:block h-[40%] bg-gradient-to-t from-bg/88 to-transparent" />
 
               {/* Cutout */}
@@ -285,9 +285,9 @@ export function HeroSection(props: HeroProps) {
           />
 
           {/* Overlays */}
-          <div className="absolute inset-0 bg-gradient-to-r from-bg/78 via-bg/45 to-bg/18" />
+          <div className="absolute inset-0 bg-gradient-to-r from-bg/35 via-bg/75 to-bg/75" />
           <div className="absolute inset-x-0 bottom-0 h-[34%] bg-gradient-to-t from-bg/84 to-transparent" />
-          <div className="absolute inset-0 hidden dark:block bg-gradient-to-r from-bg/82 via-bg/50 to-bg/22" />
+          <div className="absolute inset-0 hidden dark:block bg-gradient-to-r from-bg/20 via-bg/55 to-bg/55" />
           <div className="absolute inset-x-0 bottom-0 hidden dark:block h-[34%] bg-gradient-to-t from-bg/88 to-transparent" />
 
           <div className="relative z-10 container-page flex h-full items-center">

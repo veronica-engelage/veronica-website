@@ -81,7 +81,24 @@
 
 /* ----------------------------
    Semantic tokens (DARK)
+   - default when OS prefers dark
+   - override when class is present
    ---------------------------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: 9 14 14;
+    --surface: 15 20 20;
+    --text: 244 242 237;
+    --muted: 185 190 188;
+    --border: 45 55 54;
+
+    --stroke: rgb(var(--border) / 0.40);
+
+    --shadow-1: 0 1px 0 rgb(255 255 255 / 0.03), 0 14px 44px rgb(0 0 0 / 0.55);
+    --shadow-2: 0 1px 0 rgb(255 255 255 / 0.04), 0 22px 60px rgb(0 0 0 / 0.65);
+  }
+}
+
 :root.dark,
 html.dark,
 body.dark {
@@ -95,6 +112,21 @@ body.dark {
 
   --shadow-1: 0 1px 0 rgb(255 255 255 / 0.03), 0 14px 44px rgb(0 0 0 / 0.55);
   --shadow-2: 0 1px 0 rgb(255 255 255 / 0.04), 0 22px 60px rgb(0 0 0 / 0.65);
+}
+
+:root.light,
+html.light,
+body.light {
+  --bg: var(--linen);
+  --surface: 255 255 255;
+  --text: var(--ink);
+  --muted: 90 99 97;
+  --border: 220 214 206;
+
+  --stroke: rgb(var(--border) / 0.42);
+
+  --shadow-1: 0 1px 0 rgb(0 0 0 / 0.05), 0 10px 22px rgb(0 0 0 / 0.07);
+  --shadow-2: 0 1px 0 rgb(0 0 0 / 0.08), 0 16px 34px rgb(0 0 0 / 0.12);
 }
 
 /* ----------------------------

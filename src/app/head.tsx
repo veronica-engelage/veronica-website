@@ -53,21 +53,7 @@ export default async function Head() {
 
   return (
     <>
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-(function() {
-  try {
-    const stored = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const useDark = stored ? stored === 'dark' : prefersDark;
-    document.documentElement.classList.toggle('dark', useDark);
-  } catch (e) {}
-})();
-          `,
-        }}
-      />
-
+      <meta name="color-scheme" content="light dark" />
       {process.env.NEXT_PUBLIC_GA_ID ? (
         <>
           <script async src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`} />
