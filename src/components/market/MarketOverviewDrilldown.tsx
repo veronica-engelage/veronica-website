@@ -58,7 +58,7 @@ export default function MarketOverviewDrilldown({
     return items.sort((a, b) => {
       if (a.medianListingPrice === null) return 1;
       if (b.medianListingPrice === null) return -1;
-      return (b.medianListingPrice ?? 0) - (a.medianListingPrice ?? 0);
+      return b.medianListingPrice - a.medianListingPrice;
     });
   }, [marketId, neighborhoods, neighborhoodTrendsById]);
 
