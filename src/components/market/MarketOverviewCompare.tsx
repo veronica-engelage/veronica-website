@@ -102,9 +102,12 @@ function toSeriesValues(
   });
 }
 
-function latestValue(trend: TrendPoint[], key: keyof TrendPoint) {
+type NumericTrendKey = Exclude<keyof TrendPoint, "month">;
+
+function latestValue(trend: TrendPoint[], key: NumericTrendKey): number | null {
   const last = trend[trend.length - 1];
-  return last?.[key] ?? null;
+  const value = last?.[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 export default function MarketOverviewCompare({
