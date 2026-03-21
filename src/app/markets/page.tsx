@@ -89,6 +89,11 @@ export default async function MarketsIndex() {
               {settings?.introText ||
                 "Explore Charleston‑area markets with curated neighborhood context, current pricing signals, and an editorial look at each community."}
             </p>
+            <div className="mt-6">
+              <Link href="/markets/overview" className="btn btn-primary">
+                View Market Overview
+              </Link>
+            </div>
             <div className="mt-12 max-w-xl">
               <MarketsFilterList markets={markets} />
             </div>

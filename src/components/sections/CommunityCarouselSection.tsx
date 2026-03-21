@@ -78,6 +78,14 @@ export async function CommunityCarouselSection(props: SectionProps) {
   const defaultEyebrow = mode === "markets" ? "Markets" : "Neighborhoods";
   const defaultHeadline =
     mode === "markets" ? "Community Market Guides" : "Neighborhood Guides";
+  const highlight = {
+    eyebrow: "Market Overview",
+    title: "Compare every market and neighborhood side-by-side.",
+    description:
+      "Explore 24-month trends, rolling rankings, and ZIP-based market signals in one place.",
+    ctaLabel: "View Market Overview",
+    ctaHref: "/markets/overview",
+  };
 
   return (
     <CommunityCarousel
@@ -85,6 +93,7 @@ export async function CommunityCarouselSection(props: SectionProps) {
       headline={props.headline ?? defaultHeadline}
       items={carouselItems}
       viewAllHref={mode === "markets" ? "/markets" : "/neighborhoods"}
+      highlight={highlight}
     />
   );
 }

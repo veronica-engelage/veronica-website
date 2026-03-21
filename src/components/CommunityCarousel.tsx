@@ -18,6 +18,13 @@ type CommunityCarouselProps = {
   headline?: string | null;
   items: CarouselItem[];
   viewAllHref?: string | null;
+  highlight?: {
+    eyebrow?: string | null;
+    title: string;
+    description?: string | null;
+    ctaLabel: string;
+    ctaHref: string;
+  } | null;
 };
 
 export function CommunityCarousel({
@@ -25,6 +32,7 @@ export function CommunityCarousel({
   headline = "Community Market Guides",
   items,
   viewAllHref,
+  highlight,
 }: CommunityCarouselProps) {
   if (!Array.isArray(items) || items.length === 0) return null;
 
@@ -91,7 +99,7 @@ export function CommunityCarousel({
         ) : null}
       </div>
 
-      <div className="mt-6 -mx-5 sm:-mx-8">
+      <div className="mt-8 -mx-5 sm:-mx-8">
         <div
           ref={scrollerRef}
           className="flex gap-4 lg:gap-0 overflow-x-auto px-5 pb-2 sm:px-8 snap-x snap-mandatory scroll-smooth scrollbar-none"
@@ -153,6 +161,29 @@ export function CommunityCarousel({
               onClick={() => jumpToPage(idx)}
             />
           ))}
+        </div>
+      ) : null}
+
+      {highlight ? (
+        <div className="mt-8 card p-6">
+          {highlight.eyebrow ? (
+            <div className="text-xs uppercase tracking-[0.18em] text-muted">
+              {highlight.eyebrow}
+            </div>
+          ) : null}
+          <div className="mt-2 text-2xl sm:text-3xl font-semibold text-text">
+            {highlight.title}
+          </div>
+          {highlight.description ? (
+            <p className="mt-3 text-[1.05rem] text-muted leading-relaxed max-w-2xl">
+              {highlight.description}
+            </p>
+          ) : null}
+          <div className="mt-4">
+            <Link href={highlight.ctaHref} className="btn btn-primary">
+              {highlight.ctaLabel}
+            </Link>
+          </div>
         </div>
       ) : null}
     </section>
