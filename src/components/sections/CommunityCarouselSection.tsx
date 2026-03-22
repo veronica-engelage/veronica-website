@@ -1,6 +1,7 @@
 import { sanityClient } from "@/sanity/client";
 import { groq } from "next-sanity";
 import { CommunityCarousel } from "@/components/CommunityCarousel";
+import { getMarketOverviewTeaser } from "@/lib/marketOverview";
 
 type MarketItem = {
   _id: string;
@@ -54,6 +55,11 @@ const allNeighborhoodsQuery = groq`
 
 export async function CommunityCarouselSection(props: SectionProps) {
   const mode = props.mode || "markets";
+  const teaser = await getMarketOverviewTeaser([
+    "Daniel Island",
+    "Charleston Peninsula",
+    "Mount Pleasant",
+  ]);
 
   let items: Array<MarketItem | NeighborhoodItem> = [];
   if (mode === "markets") {
@@ -83,8 +89,9 @@ export async function CommunityCarouselSection(props: SectionProps) {
     title: "Compare every market and neighborhood side-by-side.",
     description:
       "Explore 24-month trends, rolling rankings, and ZIP-based market signals in one place.",
-    ctaLabel: "View Market Overview",
+    ctaLabel: "Interactive Market Overview",
     ctaHref: "/markets/overview",
+    chart: teaser,
   };
 
   return (

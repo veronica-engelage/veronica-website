@@ -68,6 +68,17 @@ export type MarketOverviewData = {
   };
 };
 
+export type TeaserSeries = {
+  id: string;
+  label: string;
+  values: number[];
+};
+
+export type MarketOverviewTeaser = {
+  months: string[];
+  series: TeaserSeries[];
+};
+
 const marketQuery = groq`
   *[_type == "market"] | order(order asc, name asc) {
     _id,
@@ -154,6 +165,77 @@ function buildTrendForZips(
       marketHotnessRank: average(rows.map((r) => r.marketHotnessRank)),
     };
   });
+}
+
+function normalizeName(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function findMarket(markets: Market[], target: string) {
+  const needle = normalizeName(target);
+  return (
+    markets.find((m) => normalizeName(m.name) === needle) ||
+    markets.find((m) => normalizeName(m.name).includes(needle)) ||
+    markets.find((m) => needle.includes(normalizeName(m.name))) ||
+    null
+  );
+}
+
+export async function getMarketOverviewTeaser(
+  targetMarkets: string[],
+): Promise<MarketOverviewTeaser | null> {
+  const [markets, neighborhoods] = await Promise.all([
+    sanityClient.fetch<Market[]>(marketQuery),
+    sanityClient.fetch<Neighborhood[]>(neighborhoodQuery),
+  ]);
+
+  const allZips = uniq(
+    neighborhoods.flatMap((n) => n.zipMappings?.map((z) => z.zip) || [])
+  ).filter(Boolean);
+
+  if (!allZips.length) return null;
+
+  const stats = await sanityClient.fetch<StatPoint[]>(statsQuery, { zips: allZips });
+  const byZip = buildStatsIndex(stats);
+
+  const monthsAll = sortMonths(
+    uniq(stats.map((row) => toMonthKey(row.month)).filter(Boolean) as string[])
+  );
+  const months = monthsAll.slice(-24);
+  if (!months.length) return null;
+
+  const series: TeaserSeries[] = [];
+
+  const orderedTargets = targetMarkets.map((name) => ({
+    name,
+    market: findMarket(markets, name),
+  }));
+
+  orderedTargets.forEach(({ name, market }) => {
+    if (!market) return;
+    const marketNeighborhoods = neighborhoods.filter(
+      (n) => n.municipality === market.municipality
+    );
+    const zips = uniq(
+      marketNeighborhoods.flatMap((n) => n.zipMappings?.map((z) => z.zip) || [])
+    ).filter(Boolean);
+    if (!zips.length) return;
+    const trend = buildTrendForZips(zips, months, byZip);
+    series.push({
+      id: market.slug || market._id,
+      label: market.name || name,
+      values: trend.map((t) => t.medianListingPrice ?? NaN),
+    });
+  });
+
+  const overallTrend = buildTrendForZips(allZips, months, byZip);
+  series.push({
+    id: "area",
+    label: "Area median price",
+    values: overallTrend.map((t) => t.medianListingPrice ?? NaN),
+  });
+
+  return { months, series };
 }
 
 function trendValueForMonths(

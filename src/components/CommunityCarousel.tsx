@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import MarketOverviewTeaserChart from "@/components/market/MarketOverviewTeaserChart";
 
 type CarouselItem = {
   id: string;
@@ -24,6 +25,7 @@ type CommunityCarouselProps = {
     description?: string | null;
     ctaLabel: string;
     ctaHref: string;
+    chart?: import("@/lib/marketOverview").MarketOverviewTeaser | null;
   } | null;
 };
 
@@ -165,25 +167,30 @@ export function CommunityCarousel({
       ) : null}
 
       {highlight ? (
-        <div className="mt-8 card p-6">
-          {highlight.eyebrow ? (
-            <div className="text-xs uppercase tracking-[0.18em] text-muted">
-              {highlight.eyebrow}
+        <div className="mt-8">
+          <div className="divider my-4" />
+          <div className="py-10">
+            {highlight.eyebrow ? (
+              <div className="text-xs uppercase tracking-[0.18em] text-muted">
+                {highlight.eyebrow}
+              </div>
+            ) : null}
+            <h3 className="mt-3 text-3xl font-semibold text-text max-w-4xl">
+              {highlight.title}
+            </h3>
+            {highlight.description ? (
+              <p className="mt-3 text-[1.05rem] text-muted leading-relaxed max-w-3xl">
+                {highlight.description}
+              </p>
+            ) : null}
+            {highlight.chart ? <MarketOverviewTeaserChart data={highlight.chart} /> : null}
+            <div className="mt-10">
+              <Link href={highlight.ctaHref} className="btn btn-primary">
+                {highlight.ctaLabel}
+              </Link>
             </div>
-          ) : null}
-          <div className="mt-2 text-2xl sm:text-3xl font-semibold text-text">
-            {highlight.title}
           </div>
-          {highlight.description ? (
-            <p className="mt-3 text-[1.05rem] text-muted leading-relaxed max-w-2xl">
-              {highlight.description}
-            </p>
-          ) : null}
-          <div className="mt-4">
-            <Link href={highlight.ctaHref} className="btn btn-primary">
-              {highlight.ctaLabel}
-            </Link>
-          </div>
+          <div className="divider my-4" />
         </div>
       ) : null}
     </section>
