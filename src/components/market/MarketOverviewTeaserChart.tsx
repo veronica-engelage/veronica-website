@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import type { MarketOverviewTeaser } from "@/lib/marketOverview";
 
 const palette = [
@@ -65,34 +66,51 @@ function formatMonthLabel(month: string) {
   return `${label} '${y.slice(-2)}`;
 }
 
-const fixedTicks = [750000, 1000000, 1250000, 1500000];
+  const fixedTicks = [750000, 1000000, 1250000, 1500000];
 
 export default function MarketOverviewTeaserChart({
   data,
 }: {
   data: MarketOverviewTeaser;
 }) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener?.("change", update);
+    return () => mq.removeEventListener?.("change", update);
+  }, []);
+
   const width = 680;
-  const height = 230;
-  const padding = { left: 28, right: 0, top: 10, bottom: 34 };
+  const height = isMobile ? 340 : 230;
+  const padding = isMobile
+    ? { left: 84, right: 20, top: 12, bottom: 18 }
+    : { left: 24, right: 4, top: 10, bottom: 34 };
+  const strokeWidth = isMobile ? 4.5 : 2.5;
   const plotWidth = width - padding.left - padding.right;
   const plotHeight = height - padding.top - padding.bottom;
 
   const allValues = data.series.flatMap((s) => s.values).filter((v) => Number.isFinite(v));
   const min = allValues.length ? Math.min(...allValues) : 0;
   const max = allValues.length ? Math.max(...allValues) : 1;
-  const pad = (max - min) * 0.08 || 1;
-  const minY = Math.min(min - pad, ...fixedTicks);
-  const maxY = Math.max(max + pad, ...fixedTicks);
-  const ticks = fixedTicks;
+  const pad = (max - min) * (isMobile ? 0.06 : 0.08) || 1;
+  const mobileTicks = [1500000, 1250000, 1000000, 750000];
+  const minY = isMobile ? mobileTicks[3] : Math.min(min - pad, ...fixedTicks);
+  const maxY = isMobile ? Math.max(max + pad, mobileTicks[0]) : Math.max(max + pad, ...fixedTicks);
+  const ticks = isMobile ? mobileTicks : fixedTicks;
 
   return (
     <div className="mt-6">
       <div className="text-xs uppercase tracking-[0.18em] text-muted">
         Median price trend · 24 months
       </div>
-      <div className="mt-3 rounded-md border border-border/70 bg-bg/60 p-3">
-        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-[260px]">
+      <div className="mt-3 rounded-md bg-bg/60 p-0 sm:p-3">
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          className="w-full h-[340px] sm:h-[260px]"
+        >
           {ticks.map((value) => {
             const y = padding.top + (1 - (value - minY) / (maxY - minY || 1)) * plotHeight;
             return (
@@ -110,19 +128,31 @@ export default function MarketOverviewTeaserChart({
                   x={padding.left - 8}
                   y={y - 4}
                   textAnchor="end"
-                  className="text-[10px] fill-muted"
+                  className={isMobile ? "text-[24px] fill-muted" : "text-[10px] fill-muted"}
                 >
-                  {formatMoney(value)}
+                  {value === 1500000
+                    ? "$1.5M"
+                    : value === 1250000
+                      ? "$1.25M"
+                      : value === 1000000
+                        ? "$1.0M"
+                        : "$750k"}
                 </text>
               </g>
             );
           })}
           {data.months.length ? (
-            data.months
-              .filter((_, idx) => idx === 0 || idx === Math.floor((data.months.length - 1) / 2) || idx === data.months.length - 1)
-              .map((month, idx, arr) => {
-                const monthIndex = data.months.indexOf(month);
-                const x = padding.left + (monthIndex / Math.max(1, data.months.length - 1)) * plotWidth;
+            (() => {
+              const lastIdx = data.months.length - 1;
+              const midIdx = Math.floor(lastIdx / 2);
+              const indices = [0, midIdx, lastIdx];
+              return indices.map((idx) => {
+                const month = data.months[idx];
+                if (!month) return null;
+                const x = padding.left + (idx / Math.max(1, lastIdx)) * plotWidth;
+                const anchor = idx === 0 ? "start" : idx === lastIdx ? "end" : "middle";
+                const label =
+                  idx === 0 ? "Mar '24" : idx === midIdx ? "Feb '25" : "Feb '26";
                 return (
                   <g key={`x-${month}`}>
                     <line
@@ -136,15 +166,16 @@ export default function MarketOverviewTeaserChart({
                     />
                     <text
                       x={x}
-                      y={height - padding.bottom + 20}
-                      textAnchor="middle"
-                      className="text-[10px] fill-muted"
+                      y={height - padding.bottom + (isMobile ? 24 : 20)}
+                      textAnchor={anchor}
+                      className={isMobile ? "text-[24px] fill-muted" : "text-[10px] fill-muted"}
                     >
-                      {formatMonthLabel(month)}
+                      {label}
                     </text>
                   </g>
                 );
-              })
+              });
+            })()
           ) : null}
           {data.series.map((series, idx) => (
             <path
@@ -152,7 +183,7 @@ export default function MarketOverviewTeaserChart({
               d={buildLinePath(series.values, plotWidth, plotHeight, padding.left, padding.top, minY, maxY)}
               fill="none"
               stroke="currentColor"
-              strokeWidth="2.5"
+              strokeWidth={strokeWidth}
               className={palette[idx] || "text-text"}
             />
           ))}
